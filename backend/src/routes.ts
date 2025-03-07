@@ -3,5 +3,5 @@ import { HomeController } from "./home/home.controller";
 
 const router = Router();
 
-router.use("/", HomeController.welcome);
+router.get("/", HomeController.welcome);
 export default router;

@@ -1,5 +1,5 @@
 import { ConfigInterface } from "./config.interface";
-
+import "dotenv/config";
 export class ConfigService implements ConfigInterface {
   private static instance: ConfigService;
   private config = process.env;
