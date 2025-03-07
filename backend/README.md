@@ -18,11 +18,12 @@ The **Direct** backend is built using **Express.js**, serving as the intermediar
 - **Squad API** - Fiat transaction processing
 - **Socket.io** - Webhook event handling
 - **PostgreSQL** - Database for tracking transactions
+- Redis DB - Transaction Caching for speed retrieval of transaction data.
 
 ## Installation
 
 ```sh
-git clone https://github.com/yourusername/direct-backend.git
+git clone https://github.com/prospercoded/direct/direct-backend.git
 cd direct-backend
 npm install
 npm start
