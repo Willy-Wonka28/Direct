@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Transaction {
+  id        String @id @default(cuid())
+  sender    String
+  publicKey String
+  token     Token
+  amount    Float // in token
+  amountNGN Float // in NGN
+
+  receiverAccountNo String
+  receiverBank      String
+  receiverName      String
+
+  status    Status
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Token {
+  SOL
+  USDT
+  BTC
+  ETH
+  BNB
+  BUSD
+  DAI
+  USDC
+  NGN
+}
+
+enum Status {
+  PENDING
+  SUCCESS
+  FAILED
+}
