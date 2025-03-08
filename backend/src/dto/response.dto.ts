@@ -4,6 +4,7 @@ export class ResponseDto {
   constructor(
     public message: string,
     public status: ResponseStatusEnum,
-    public data?: any
+    public data?: any,
+    public error?: any
   ) {}
 }

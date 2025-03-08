@@ -5,10 +5,9 @@ export class ValidationException extends BaseException {
   readonly errors: any;
   readonly errorString?: string;
   constructor(cause: string, errorString?: string, errors?: any) {
-    super("Validation Error");
+    super(errorString || "Validation Error");
     this.status = HttpStatus.FORBIDDEN;
     this.cause = cause;
     this.errorString = errorString;
-    this.errors = errors;
   }
 }

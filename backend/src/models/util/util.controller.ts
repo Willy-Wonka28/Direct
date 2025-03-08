@@ -6,18 +6,34 @@ export class UtilsController {
   constructor(private readonly utilService: UtilService) {}
 
   getBank: RequestHandler = (req, res, next) => {
+    const banks = this.utilService.getBanks();
+    const resObj = new ResponseDto(
+      "Banks fetched successfully",
+      ResponseStatusEnum.SUCCESS,
+      banks
+    );
+    res.json(resObj);
+  };
+
+  fetchExchangeRate: RequestHandler = async (req, res, next) => {
     try {
-      const banks = this.utilService.getBanks();
+      const { amount, fromToken, toCurrency } = req.query as any;
+      const result = await this.utilService.fetchExchangeRate(
+        amount,
+        fromToken,
+        toCurrency
+      );
       const resObj = new ResponseDto(
-        "Banks fetched successfully",
+        "Rate fetched successfully",
         ResponseStatusEnum.SUCCESS,
-        banks
+        result
       );
       res.json(resObj);
     } catch (e) {
       next(e);
     }
   };
+
   verifyBank: RequestHandler = async (req, res, next) => {
     try {
       const { bank, accountNumber } = req.body;

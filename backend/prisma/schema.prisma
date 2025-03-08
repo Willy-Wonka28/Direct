@@ -9,13 +9,15 @@ datasource db {
 }
 
 model Transaction {
-  id        String @id @default(cuid())
-  sender    String
-  publicKey String
-  token     Token
-  amount    Float // in token
-  amountNGN Float // in NGN
+  id           String @id @default(cuid())
+  sender       String
+  publicKey    String
+  senderToken  Token
+  senderAmount Float // in senderToken
 
+  receiverAmount    Float // in receiverCurrency
+  receiverCurrency  ReceiverCurrency @default(NGN)
+  // receiverCurrency: 
   receiverAccountNo String
   receiverBank      Bank
   receiverName      String
@@ -34,7 +36,62 @@ enum Token {
   BUSD
   DAI
   USDC
+}
+
+enum ReceiverCurrency {
+  USD
+  EUR
+  GBP
   NGN
+  JPY
+  CAD
+  AUD
+  CNY
+  INR
+  RUB
+  BRL
+  IDR
+  MXN
+  ZAR
+  CHF
+  HKD
+  KRW
+  SGD
+  THB
+  AED
+  ARS
+  CZK
+  DKK
+  HUF
+  ILS
+  MYR
+  NOK
+  NZD
+  PHP
+  PLN
+  RON
+  SEK
+  TRY
+  TWD
+  UAH
+  VND
+  BHD
+  BGN
+  CLP
+  COP
+  EGP
+  HRK
+  ISK
+  JOD
+  KES
+  KWD
+  LKR
+  MAD
+  OMR
+  PKR
+  QAR
+  SAR
+  BDT
 }
 
 enum Bank {
