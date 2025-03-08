@@ -8,9 +8,7 @@ export class LoggerService implements ILogger {
   constructor(private path: LoggerPaths) {
     const label =
       Object.keys(LoggerPaths)[Object.values(LoggerPaths).indexOf(path)];
-    console.log(`Logger initialized for: ${label}`);
     const isDev = configService.get("NODE_ENV") === "development";
-    console.log(isDev);
     const transport = pino.transport({
       targets: [
         // Pretty logs for console in development

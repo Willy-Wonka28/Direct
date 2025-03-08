@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
-import { ResponseDto } from "../dto/response.dto";
-import { ResponseStatusEnum } from "../constants/response-status.enum";
-import { NotFoundException } from "../utils/exceptions/not-found.exception";
+import { ResponseDto } from "../../dto/response.dto";
+import { ResponseStatusEnum } from "../../constants/response-status.enum";
+import { NotFoundException } from "../../utils/exceptions/not-found.exception";
 
 export class HomeController {
   static welcome: RequestHandler = (req: Request, res: Response) => {

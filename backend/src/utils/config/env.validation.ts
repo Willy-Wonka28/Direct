@@ -1,3 +1,4 @@
+import "dotenv/config";
 export class EnvValidation {
   private static requiredEnvVars = [
     "DATABASE_URL",
@@ -5,8 +6,7 @@ export class EnvValidation {
     "DIRECT_CLIENT_API_KEY",
     "JWT_SECRET_KEY",
     "CLIENT_URL",
-    "NODE_ENV",
-    "PORT",
+    "NUBAPI_API_KEY",
   ];
 
   static validate(): void {

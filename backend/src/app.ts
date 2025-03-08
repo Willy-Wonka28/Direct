@@ -3,7 +3,7 @@ import helmet from "helmet";
 import cors from "cors";
 import { AppEnum } from "./constants/app.enum";
 import { errorHandler } from "./utils/middleware/error-handler.middleware";
-import { HomeController } from "./home/home.controller";
+import { HomeController } from "./models/home/home.controller";
 import router from "./routes";
 import { LoggerService } from "./logger/logger.service";
 import { LoggerPaths } from "./constants/logger-paths.enum";
@@ -17,10 +17,10 @@ app.use(cors(AppEnum.CORS_OPTIONS));
 app.use("/", router);
 const logger = new LoggerService(LoggerPaths.APP);
 
-app.use((req, res, next) => {
-  logger.info(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   logger.info(`Incoming request: ${req.method} ${req.url}`);
+//   next();
+// });
 
 // Not Found Route Handler
 app.use(HomeController.notFound);

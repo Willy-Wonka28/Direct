@@ -1,4 +1,5 @@
 export enum LoggerPaths {
+  UTIL = "logs/util.log",
   APP = "logs/app.log",
   DATABASE = "logs/database.log",
   TRANSACTIONS = "logs/transactions.log",
