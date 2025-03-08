@@ -14,7 +14,24 @@ export class UtilsController {
     );
     res.json(resObj);
   };
-
+  getTokens: RequestHandler = (req, res, next) => {
+    const tokens = this.utilService.getTokens();
+    const resObj = new ResponseDto(
+      "Tokens fetched successfully",
+      ResponseStatusEnum.SUCCESS,
+      tokens
+    );
+    res.json(resObj);
+  };
+  getCurrencies: RequestHandler = (req, res, next) => {
+    const currencies = this.utilService.getCurrencies();
+    const resObj = new ResponseDto(
+      "Currencies fetched successfully",
+      ResponseStatusEnum.SUCCESS,
+      currencies
+    );
+    res.json(resObj);
+  };
   fetchExchangeRate: RequestHandler = async (req, res, next) => {
     try {
       const { amount, fromToken, toCurrency } = req.query as any;

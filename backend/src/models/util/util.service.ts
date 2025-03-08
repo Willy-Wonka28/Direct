@@ -15,7 +15,6 @@ export class UtilService {
 
   getBanks() {
     const banks = Object.values($Enums.Bank);
-    this.logger.info("Banks fetched successfully");
     return banks;
   }
   getBankCode(bank: keyof typeof banks) {

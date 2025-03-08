@@ -19,6 +19,8 @@ UtilRouter.get(
   validator.single(VerifyAccountDto),
   utilController.verifyBank
 );
+UtilRouter.get("/tokens", utilController.getTokens);
+UtilRouter.get("/currencies", utilController.getCurrencies);
 UtilRouter.get(
   "/exchange-rate",
   validator.single(GetExchangeRateDto, "query"),
