@@ -1,11 +1,11 @@
-import { Prisma, Token, Status, Bank } from "@prisma/client";
+import { Prisma, Token, Status, Bank, ReceiverCurrency } from "@prisma/client";
 import { IsDefined, IsNumber, IsString, IsEnum } from "class-validator";
 
 export class CreateTransactionDto
   implements
     Omit<
       Prisma.TransactionCreateInput,
-      "amountNGN" | "updatedAt" | "createdAt" | "id"
+      "amountNGN" | "updatedAt" | "createdAt" | "id" | "status"
     >
 {
   @IsDefined()
@@ -18,25 +18,28 @@ export class CreateTransactionDto
 
   @IsDefined()
   @IsEnum(Token)
-  declare token: Token;
+  declare senderToken: Token;
 
   @IsDefined()
   @IsNumber()
-  declare amount: number;
+  declare senderAmount: number;
 
+  @IsDefined()
+  @IsNumber()
+  declare receiverAmount: number;
+
+  @IsDefined()
+  @IsEnum(ReceiverCurrency)
+  declare receiverCurrency: ReceiverCurrency;
   @IsDefined()
   @IsString()
   declare receiverAccountNo: string;
 
   @IsDefined()
   @IsEnum(Bank)
-  declare receiverBank: string;
+  declare receiverBank: Bank;
 
   @IsDefined()
   @IsString()
   declare receiverName: string;
-
-  @IsDefined()
-  @IsEnum(Status)
-  declare status: Status;
 }
