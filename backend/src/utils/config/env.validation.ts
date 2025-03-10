@@ -1,13 +1,7 @@
 import "dotenv/config";
+import { ENV } from "../../constants/env.enum";
 export class EnvValidation {
-  private static requiredEnvVars = [
-    "DATABASE_URL",
-    "REDIS_DATABASE_URL",
-    "DIRECT_CLIENT_API_KEY",
-    "JWT_SECRET_KEY",
-    "CLIENT_URL",
-    "NUBAPI_API_KEY",
-  ];
+  private static requiredEnvVars = Object.values(ENV);
 
   static validate(): void {
     for (const envVar of this.requiredEnvVars) {

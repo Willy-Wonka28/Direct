@@ -7,7 +7,7 @@ import { Validator } from "../utils/middleware/validator.middleware";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
 import { TransactionRepository } from "../repositories/transaction.repositories";
-
+import { utilService } from "../models/util/util.router";
 const transactionRouter = Router();
 const logger = new LoggerService(LoggerPaths.TRANSACTIONS);
 const transactionRepository = new TransactionRepository();
@@ -15,7 +15,10 @@ const transactionService = new TransactionService(
   logger,
   transactionRepository
 );
-const transactionController = new TransactionController(transactionService);
+const transactionController = new TransactionController(
+  transactionService,
+  utilService
+);
 const validator = new Validator();
 
 transactionRouter.post(
@@ -23,6 +26,7 @@ transactionRouter.post(
   validator.single(CreateTransactionDto),
   transactionController.initializeTransaction
 );
+transactionRouter.get("/:id", transactionController.getTransaction);
 
 transactionRouter.post(
   "/confirm",

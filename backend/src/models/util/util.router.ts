@@ -7,24 +7,24 @@ import { Validator } from "../../utils/middleware/validator.middleware";
 import { VerifyAccountDto } from "./dto/verify-account.dto";
 import { GetExchangeRateDto } from "./dto/get-exchange-rate.dto";
 
-const UtilRouter = Router();
+const utilRouter = Router();
 const utilLogger = new LoggerService(LoggerPaths.UTIL);
-const utilService = new UtilService(utilLogger);
+export const utilService = new UtilService(utilLogger);
 const utilController = new UtilsController(utilService);
 const validator = new Validator();
 // Routes
-UtilRouter.get("/banks", utilController.getBank);
-UtilRouter.get(
+utilRouter.get("/banks", utilController.getBank);
+utilRouter.get(
   "/verify-account",
   validator.single(VerifyAccountDto),
   utilController.verifyBank
 );
-UtilRouter.get("/tokens", utilController.getTokens);
-UtilRouter.get("/currencies", utilController.getCurrencies);
-UtilRouter.get(
+utilRouter.get("/tokens", utilController.getTokens);
+utilRouter.get("/currencies", utilController.getCurrencies);
+utilRouter.get(
   "/exchange-rate",
   validator.single(GetExchangeRateDto, "query"),
   utilController.fetchExchangeRate
 );
 
-export default UtilRouter;
+export default utilRouter;

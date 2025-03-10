@@ -9,6 +9,7 @@ import { Token } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import tokensData from "../../constants/tokens.json";
 import { InternalServerErrorException } from "../../utils/exceptions/internal-server.exception";
+import { ENV } from "../../constants/env.enum";
 
 export class UtilService {
   constructor(private readonly logger: LoggerService) {}
@@ -32,7 +33,7 @@ export class UtilService {
     const url = `https://nubapi.com/api/verify?account_number=${accountNumber}&bank_code=${bankCode}`;
     const result = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${configService.get("NUBAPI_API_KEY")}`,
+        Authorization: `Bearer ${configService.get(ENV.NUBAPI_API_KEY)}`,
         "Content-Type": "application/json",
       },
     });

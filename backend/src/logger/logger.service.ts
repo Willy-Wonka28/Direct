@@ -2,13 +2,14 @@ import { LoggerPaths } from "../constants/logger-paths.enum";
 import { configService } from "../utils/config/config.service";
 import { ILogger } from "./logger.interface";
 import pino from "pino";
+import { ENV } from "../constants/env.enum";
 
 export class LoggerService implements ILogger {
   private logger: pino.Logger;
   constructor(private path: LoggerPaths) {
     const label =
       Object.keys(LoggerPaths)[Object.values(LoggerPaths).indexOf(path)];
-    const isDev = configService.get("NODE_ENV") === "development";
+    const isDev = configService.get(ENV.NODE_ENV) === "development";
     const transport = pino.transport({
       targets: [
         // Pretty logs for console in development
