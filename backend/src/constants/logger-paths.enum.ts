@@ -5,4 +5,5 @@ export enum LoggerPaths {
   TRANSACTIONS = "logs/transactions.log",
   CLIENT = "logs/client.log",
   WEBHOOK_EVENTS = "logs/webhook-events.log",
+  PAYMENTS = "logs/payments.log",
 }

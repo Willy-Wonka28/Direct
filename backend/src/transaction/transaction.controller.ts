@@ -1,22 +1,43 @@
 import { RequestHandler } from "express";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { TransactionService } from "./transaction.service";
+import { transactionService, TransactionService } from "./transaction.service";
 import webhookTransactionService from "../utils/webhook";
 import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
 import { WebhookEvent } from "../utils/webhook/webhook.events";
 import { UtilService } from "../models/util/util.service";
 import { InvalidAccountException } from "../utils/exceptions/invalid-account.exception";
+import { DuplicateTransactionException } from "../utils/exceptions/duplicate-transaction.exception";
+import { utilService } from "../models/util/util.router";
+import {
+  paymentService,
+  PaymentService,
+} from "../utils/payment/payment.service";
+import { TransactionStatus } from "@prisma/client";
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
-    private readonly utilService: UtilService
+    private readonly utilService: UtilService,
+    private readonly paymentService: PaymentService
   ) {}
   initializeTransaction: RequestHandler = async (req, res, next) => {
     const payload = req.body as CreateTransactionDto & {
       receiverAmount: number;
     };
     try {
-      // * validate receivers account details
+      // * prevent duplicate transfers
+      const pendingTransaction =
+        await this.transactionService.checkPendingTransaction(
+          payload.publicKey,
+          payload.receiverAccountNo
+        );
+
+      if (pendingTransaction) {
+        throw new DuplicateTransactionException(
+          "A Duplicate Pending Transfer was Detected"
+        );
+      }
+
+      // * validate receiver's account details
       const accountDetails = await this.utilService.verifyAccountNumber(
         payload.receiverBank,
         payload.receiverAccountNo
@@ -65,15 +86,40 @@ export class TransactionController {
         payload
       );
       if (!payload.status) {
+        await this.transactionService.updateTransactionStatus(
+          transaction.id,
+          TransactionStatus.FAILED
+        );
         webhookTransactionService
           .to(transaction.id)
           .emit(WebhookEvent.TRANSACTION_FAILED, payload);
         res.status(400).json({ message: "Transaction not confirmed." });
+        return;
       }
       // -------------------------------
-      // todo : make payment to the receiver
-      // todo : update transaction status to "successful"
-      // --------------------------------
+      // * create transfer recipient
+      const receiverBankCode = this.utilService.getBankCode(
+        transaction.receiverBank
+      );
+      const recipientCode = await this.paymentService.createTransferRecipient(
+        transaction.receiverName,
+        transaction.receiverAccountNo,
+        receiverBankCode
+      );
+
+      // * initiate transfer
+      const transferResponse = await this.paymentService.initiateTransfer(
+        transaction.receiverAmount,
+        recipientCode,
+        "Payment for received currency"
+      );
+      // -------------------------------
+      // todo: create interval to verify payment
+      // * update transaction status to "successful"
+      await this.transactionService.updateTransactionStatus(
+        transaction.id,
+        TransactionStatus.SUCCESS
+      );
       webhookTransactionService
         .to(transaction.id)
         .emit(WebhookEvent.TRANSACTION_SUCCESSFUL, payload);
@@ -83,3 +129,9 @@ export class TransactionController {
     }
   };
 }
+
+export const transactionController = new TransactionController(
+  transactionService,
+  utilService,
+  paymentService
+);
