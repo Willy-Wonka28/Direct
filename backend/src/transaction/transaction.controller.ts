@@ -12,19 +12,33 @@ export class TransactionController {
     private readonly utilService: UtilService
   ) {}
   initializeTransaction: RequestHandler = async (req, res, next) => {
-    const payload = req.body as CreateTransactionDto;
+    const payload = req.body as CreateTransactionDto & {
+      receiverAmount: number;
+    };
     try {
       // * validate receivers account details
-      const backDetails = this.utilService.verifyBank(
+      const accountDetails = await this.utilService.verifyAccountNumber(
         payload.receiverBank,
         payload.receiverAccountNo
       );
-      if (!backDetails) {
+
+      if (!accountDetails) {
         throw new InvalidAccountException(
           "Invalid Account Details",
           "Invalid account details provided"
         );
       }
+      const convertedAmount = (
+        await this.utilService.fetchExchangeRate(
+          payload.senderAmount,
+          payload.senderToken,
+          payload.receiverCurrency
+        )
+      ).convertedAmount;
+      // enforce receivers details
+      payload.receiverName = accountDetails.account_name;
+      payload.receiverAmount = convertedAmount;
+
       const transaction = await this.transactionService.createTransaction(
         payload
       );

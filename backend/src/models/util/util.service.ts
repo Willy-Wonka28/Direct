@@ -1,16 +1,15 @@
 import { LoggerService } from "../../logger/logger.service";
-import { $Enums, ReceiverCurrency } from "@prisma/client";
+import { $Enums, Bank, ReceiverCurrency } from "@prisma/client";
 import banks from "../../constants/banks.json";
 import axios from "axios";
 import { configService } from "../../utils/config/config.service";
 import { BankErrorResponse, BankSuccessResponse } from "../../types/util.types";
 import { InvalidAccountException } from "../../utils/exceptions/invalid-account.exception";
 import { Token } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
 import tokensData from "../../constants/tokens.json";
 import { InternalServerErrorException } from "../../utils/exceptions/internal-server.exception";
 import { ENV } from "../../constants/env.enum";
-
+import PaystackBankMapping from "../../constants/paystackBankMapping";
 export class UtilService {
   constructor(private readonly logger: LoggerService) {}
 
@@ -18,8 +17,10 @@ export class UtilService {
     const banks = Object.values($Enums.Bank);
     return banks;
   }
-  getBankCode(bank: keyof typeof banks) {
-    const code = banks[bank];
+  getBankCode(bank: keyof typeof Bank) {
+    const mappedName = PaystackBankMapping[bank];
+    console.log(mappedName);
+    const code = banks.find((b) => b.name === mappedName)?.code;
 
     if (!code) {
       throw new Error(`Bank "${bank}" not found`);
@@ -28,22 +29,59 @@ export class UtilService {
     this.logger.info(`Bank code fetched successfully for ${bank}`);
     return code;
   }
-  async verifyBank(bank: string, accountNumber: string) {
-    const bankCode = this.getBankCode(bank as keyof typeof banks);
-    const url = `https://nubapi.com/api/verify?account_number=${accountNumber}&bank_code=${bankCode}`;
-    const result = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${configService.get(ENV.NUBAPI_API_KEY)}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (result.data.status === 200) {
-      return result.data as BankSuccessResponse;
+  async verifyAccountNumber(bank: string, accountNumber: string) {
+    const bankCode = this.getBankCode(bank as keyof typeof Bank);
+    const url = `https://api.paystack.co/bank/resolve`;
+    try {
+      const result = await axios.get(url, {
+        params: {
+          account_number: accountNumber,
+          bank_code: bankCode,
+        },
+        headers: {
+          Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRET_KEY)}`,
+          "Content-Type": "application/json",
+        },
+      });
+      this.logger.info(
+        `Bank verification response for ${accountNumber}:`,
+        result.data
+      );
+      if (result.data.status) {
+        return result.data.data as BankSuccessResponse;
+      }
+      let data = result.data as BankErrorResponse;
+      throw new InvalidAccountException(
+        "Invalid Account Details",
+        data.message
+      );
+    } catch (error: any) {
+      throw new InvalidAccountException(
+        "Invalid Account Details",
+        error.message
+      );
     }
-    let data = result.data as BankErrorResponse;
-    let cause = JSON.stringify(data.message);
-    throw new InvalidAccountException("Invalid Account Details", cause);
   }
+
+  async listBanks() {
+    try {
+      const response = await axios.get("https://api.paystack.co/bank", {
+        headers: {
+          // Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRET_KEY)}`,
+          Accept: "application/json",
+        },
+      });
+      this.logger.info("Banks fetched successfully", response.data);
+      return response.data.data; // Array of banks with their codes
+    } catch (error: any) {
+      console.error(
+        "Error fetching banks:",
+        error.response?.data || error.message
+      );
+      throw new InternalServerErrorException("Failed to fetch banks");
+    }
+  }
+
   getTokens() {
     return Object.values(Token);
   }
@@ -51,7 +89,7 @@ export class UtilService {
     return Object.values(ReceiverCurrency);
   }
   async fetchExchangeRate(
-    amount: Decimal,
+    amount: number,
     fromToken: Token,
     toCurrency: ReceiverCurrency
   ) {

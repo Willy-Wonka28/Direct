@@ -1,13 +1,7 @@
 export type BankSuccessResponse = {
   account_number: string;
   account_name: string;
-  first_name: string;
-  last_name: string;
-  other_name: string;
-  bank_name: string;
-  bank_code: string;
-  requests: string;
-  status: true;
+  bank_id: number;
 };
 
 export type BankErrorResponse = {

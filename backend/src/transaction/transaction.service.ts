@@ -5,6 +5,7 @@ import { LoggerService } from "../logger/logger.service";
 import { InternalServerErrorException } from "../utils/exceptions/internal-server.exception";
 import { NotFoundException } from "../utils/exceptions/not-found.exception";
 import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
+import { UtilService } from "../models/util/util.service";
 
 export class TransactionService {
   constructor(
@@ -12,13 +13,12 @@ export class TransactionService {
     private readonly transactionRepository: TransactionRepository
   ) {}
   async createTransaction(
-    createTransactionDto: CreateTransactionDto
+    createTransactionDto: CreateTransactionDto & { receiverAmount: number }
   ): Promise<Transaction> {
-    this.logger.info("Creating a transaction");
     try {
-      const transaction = await this.transactionRepository.createTransaction(
-        createTransactionDto
-      );
+      const transaction = await this.transactionRepository.createTransaction({
+        ...createTransactionDto,
+      });
       return transaction;
     } catch (error: any) {
       this.logger.error(error.message);

@@ -26,12 +26,12 @@ transactionRouter.post(
   validator.single(CreateTransactionDto),
   transactionController.initializeTransaction
 );
-transactionRouter.get("/:id", transactionController.getTransaction);
-
 transactionRouter.post(
   "/confirm",
   validator.single(ConfirmedTransactionDto),
   transactionController.confirmTransaction
 );
+
+transactionRouter.get("/:id", transactionController.getTransaction);
 
 export default transactionRouter;
