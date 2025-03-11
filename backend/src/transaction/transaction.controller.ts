@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { transactionService, TransactionService } from "./transaction.service";
 import webhookTransactionService from "../utils/webhook";
-import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
+import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
 import { WebhookEvent } from "../utils/webhook/webhook.events";
 import { UtilService } from "../models/util/util.service";
 import { InvalidAccountException } from "../utils/exceptions/invalid-account.exception";
@@ -13,6 +13,8 @@ import {
   PaymentService,
 } from "../utils/payment/payment.service";
 import { TransactionStatus } from "@prisma/client";
+import { ResponseDto } from "../dto/response.dto";
+import { ResponseStatus } from "../constants/response-status.enum";
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -64,7 +66,12 @@ export class TransactionController {
         payload
       );
 
-      res.status(201).json(transaction);
+      const resObj = new ResponseDto(
+        "Transaction initialized successfully",
+        ResponseStatus.SUCCESS,
+        transaction
+      );
+      res.status(201).json(resObj);
     } catch (error) {
       next(error);
     }
@@ -73,14 +80,19 @@ export class TransactionController {
     const { id } = req.params;
     try {
       const transaction = await this.transactionService.getTransactionById(id);
-      res.status(200).json(transaction);
+      const resObj = new ResponseDto(
+        "Transaction fetched successfully",
+        ResponseStatus.SUCCESS,
+        transaction
+      );
+      res.status(200).json(resObj);
     } catch (error) {
       next(error);
     }
   };
 
   confirmTransaction: RequestHandler = async (req, res, next) => {
-    const payload = req.body as ConfirmedTransactionDto;
+    const payload = req.body as ConfirmTransactionDto;
     try {
       const transaction = await this.transactionService.getPendingTransaction(
         payload
@@ -109,7 +121,7 @@ export class TransactionController {
 
       // * initiate transfer
       const transferResponse = await this.paymentService.initiateTransfer(
-        transaction.receiverAmount,
+        transaction.receiverAmount * 1000, //converted to Kobo
         recipientCode,
         "Payment for received currency"
       );

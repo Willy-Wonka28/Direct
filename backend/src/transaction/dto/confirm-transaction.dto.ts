@@ -1,7 +1,7 @@
 import { Token } from "@prisma/client";
 import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator";
 
-export class ConfirmedTransactionDto {
+export class ConfirmTransactionDto {
   @IsString()
   declare publicKey: string;
 

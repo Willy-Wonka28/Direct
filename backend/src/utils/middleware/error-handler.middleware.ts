@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 import { BaseException } from "../exceptions/base.exception";
 import { ResponseDto } from "../../dto/response.dto";
 import { Response, Request } from "express";
-import { ResponseStatusEnum } from "../../constants/response-status.enum";
+import { ResponseStatus } from "../../constants/response-status.enum";
 import { LoggerService } from "../../logger/logger.service";
 import { LoggerPaths } from "../../constants/logger-paths.enum";
 
@@ -18,7 +18,7 @@ export function errorHandler(
   const message = error.message || "Something went wrong";
   const resObj = new ResponseDto(
     message,
-    ResponseStatusEnum.ERROR,
+    ResponseStatus.ERROR,
     undefined,
     error.cause || error
   );

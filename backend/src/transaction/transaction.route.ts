@@ -3,7 +3,7 @@ import { TransactionController } from "./transaction.controller";
 
 import { Validator } from "../utils/middleware/validator.middleware";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
+import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
 import { transactionController } from "./transaction.controller";
 
 const transactionRouter = Router();
@@ -17,7 +17,7 @@ transactionRouter.post(
 );
 transactionRouter.post(
   "/confirm",
-  validator.single(ConfirmedTransactionDto),
+  validator.single(ConfirmTransactionDto),
   transactionController.confirmTransaction
 );
 

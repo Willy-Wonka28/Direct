@@ -1,4 +1,4 @@
-import { ResponseStatusEnum } from "../../constants/response-status.enum";
+import { ResponseStatus } from "../../constants/response-status.enum";
 import { ResponseDto } from "../../dto/response.dto";
 import { UtilService } from "./util.service";
 import { RequestHandler } from "express";
@@ -9,7 +9,7 @@ export class UtilsController {
     const banks = this.utilService.listBanks();
     const resObj = new ResponseDto(
       "Banks fetched successfully",
-      ResponseStatusEnum.SUCCESS,
+      ResponseStatus.SUCCESS,
       banks
     );
     res.json(resObj);
@@ -18,7 +18,7 @@ export class UtilsController {
     const tokens = this.utilService.getTokens();
     const resObj = new ResponseDto(
       "Tokens fetched successfully",
-      ResponseStatusEnum.SUCCESS,
+      ResponseStatus.SUCCESS,
       tokens
     );
     res.json(resObj);
@@ -27,7 +27,7 @@ export class UtilsController {
     const currencies = this.utilService.getCurrencies();
     const resObj = new ResponseDto(
       "Currencies fetched successfully",
-      ResponseStatusEnum.SUCCESS,
+      ResponseStatus.SUCCESS,
       currencies
     );
     res.json(resObj);
@@ -42,7 +42,7 @@ export class UtilsController {
       );
       const resObj = new ResponseDto(
         "Rate fetched successfully",
-        ResponseStatusEnum.SUCCESS,
+        ResponseStatus.SUCCESS,
         result
       );
       res.json(resObj);
@@ -60,7 +60,7 @@ export class UtilsController {
       );
       const resObj = new ResponseDto(
         "Account verified successfully",
-        ResponseStatusEnum.SUCCESS,
+        ResponseStatus.SUCCESS,
         result
       );
       res.json(resObj);

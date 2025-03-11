@@ -1,9 +1,9 @@
-import { ResponseStatusEnum } from "../constants/response-status.enum";
+import { ResponseStatus } from "../constants/response-status.enum";
 
 export class ResponseDto {
   constructor(
     public message: string,
-    public status: ResponseStatusEnum,
+    public status: ResponseStatus,
     public data?: any,
     public error?: any
   ) {}

@@ -7,7 +7,7 @@ import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { LoggerService } from "../logger/logger.service";
 import { InternalServerErrorException } from "../utils/exceptions/internal-server.exception";
 import { NotFoundException } from "../utils/exceptions/not-found.exception";
-import { ConfirmedTransactionDto } from "./dto/confirmed-transaction.dto";
+import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
 import { LoggerPaths } from "../constants/logger-paths.enum";
 
 export class TransactionService {
@@ -42,7 +42,7 @@ export class TransactionService {
     return transaction;
   }
   async getPendingTransaction(
-    payload: Omit<ConfirmedTransactionDto, "timestamp"> & { timestamp?: string }
+    payload: Omit<ConfirmTransactionDto, "timestamp"> & { timestamp?: string }
   ): Promise<Transaction> {
     const transaction = await this.transactionRepository.getPendingTransaction(
       payload

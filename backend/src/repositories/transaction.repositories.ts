@@ -1,6 +1,6 @@
 import { Prisma, Transaction } from "@prisma/client";
 import { databaseService } from "../utils/database";
-import { ConfirmedTransactionDto } from "../transaction/dto/confirmed-transaction.dto";
+import { ConfirmTransactionDto } from "../transaction/dto/confirm-transaction.dto";
 import { TransactionStatus } from "@prisma/client";
 export class TransactionRepository {
   private readonly transactionDelegate: Prisma.TransactionDelegate;
@@ -34,7 +34,7 @@ export class TransactionRepository {
     });
   }
   async getPendingTransaction(
-    payload: Omit<ConfirmedTransactionDto, "timestamp"> & { timestamp?: string }
+    payload: Omit<ConfirmTransactionDto, "timestamp"> & { timestamp?: string }
   ): Promise<Transaction | null> {
     const transactions = await this.transactionDelegate.findMany({
       where: {
