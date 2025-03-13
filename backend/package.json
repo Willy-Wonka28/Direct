@@ -6,7 +6,10 @@
   "exports": "./dist/server.js",
   "scripts": {
     "dev": "tsx --watch src/server.ts",
-    "build": "tsc -p . && cp src/constants/*.json dist2/constants"
+    "build": "pnpm install && pnpm run clean && pnpm run db:migrate && pnpm run build-code",
+    "build-code": "tsc -p . && cp src/constants/*.json dist/constants",
+    "db:migrate": "npx prisma migrate dev",
+    "clean": "rimraf dist/"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +30,7 @@
     "pino-pretty": "^13.0.0",
     "prisma": "^6.4.1",
     "socket.io": "^4.8.1",
-    "tsc": "^2.0.4",
-    "tsx": "^4.19.3"
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
   }
 }
