@@ -1,4 +1,10 @@
-import { Prisma, Token, Status, Bank, ReceiverCurrency } from "@prisma/client";
+import {
+  Prisma,
+  Token,
+  TransactionStatus,
+  Bank,
+  ReceiverCurrency,
+} from "@prisma/client";
 import {
   IsDefined,
   IsNumber,
