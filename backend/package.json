@@ -2,7 +2,7 @@
   "name": "Direct",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.ts",
+  "main": "./dist/server.js",
   "exports": "./dist/server.js",
   "scripts": {
     "dev": "tsx --watch src/server.ts",
