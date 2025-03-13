@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/server.js",
-  "exports": "./dist/server.js",
   "scripts": {
     "dev": "tsx --watch src/server.ts",
     "start": "node dist/server.js",
-    "build": "pnpm run db:migrate && pnpm run build-code",
+    "build": "npm install --legacy-peer-deps && npm run db:migrate && npm run build-code",
     "build-code": "tsc -p . && cp src/constants/*.json dist/constants",
     "db:migrate": "npx prisma migrate dev",
     "clean": "rm -rf dist/"
