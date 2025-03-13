@@ -9,7 +9,7 @@
     "build": "pnpm install && pnpm run clean && pnpm run db:migrate && pnpm run build-code",
     "build-code": "tsc -p . && cp src/constants/*.json dist/constants",
     "db:migrate": "npx prisma migrate dev",
-    "clean": "rimraf dist/"
+    "clean": "rm -rf dist/"
   },
   "keywords": [],
   "author": "",
