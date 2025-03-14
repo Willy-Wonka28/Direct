@@ -3,13 +3,27 @@ import { configService } from "../utils/config/config.service";
 import { ILogger } from "./logger.interface";
 import pino from "pino";
 import { ENV } from "../constants/env.enum";
-
+import fs from "fs";
+import path from "path";
 export class LoggerService implements ILogger {
   private logger: pino.Logger;
-  constructor(private path: LoggerPaths) {
+  constructor(private loggerPath: LoggerPaths) {
     const label =
-      Object.keys(LoggerPaths)[Object.values(LoggerPaths).indexOf(path)];
-    const isDev = configService.get(ENV.NODE_ENV) === "development";
+      Object.keys(LoggerPaths)[Object.values(LoggerPaths).indexOf(loggerPath)];
+
+    const fullPath = path.join(__dirname, "..", "..", loggerPath);
+
+    const dirExists = fs.existsSync(path.dirname(fullPath));
+    if (!dirExists) {
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    }
+    const fileExists = fs.existsSync(fullPath);
+
+    if (!fileExists) {
+      fs.writeFileSync(fullPath, "");
+    }
+    // ! development mode enforced temporarily
+    const isDev = true || configService.get(ENV.NODE_ENV) === "development";
     const transport = pino.transport({
       targets: [
         // Pretty logs for console in development
@@ -26,7 +40,7 @@ export class LoggerService implements ILogger {
         // File logging in JSON format
         {
           target: "pino/file",
-          options: { destination: this.path },
+          options: { destination: this.loggerPath },
         },
       ].filter(Boolean) as any[], // Remove null if not in development
     });
