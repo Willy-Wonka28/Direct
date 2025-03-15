@@ -1,6 +1,6 @@
 import { Prisma, Transaction } from "@prisma/client";
-import { databaseService } from "../utils/database";
-import { ConfirmTransactionDto } from "../transaction/dto/confirm-transaction.dto";
+import { databaseService } from "../../utils/database";
+import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
 import { TransactionStatus } from "@prisma/client";
 export class TransactionRepository {
   private readonly transactionDelegate: Prisma.TransactionDelegate;
@@ -38,7 +38,7 @@ export class TransactionRepository {
   ): Promise<Transaction | null> {
     const transactions = await this.transactionDelegate.findMany({
       where: {
-        publicKey: payload.publicKey,
+        publicKey: payload.senderPublicKey,
         senderAmount: payload.amountInToken,
         senderToken: payload.token,
         status: TransactionStatus.PENDING,

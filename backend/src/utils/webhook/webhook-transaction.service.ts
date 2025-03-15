@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { WebhookService } from "./webhook.service";
 import { LoggerService } from "../../logger/logger.service";
-import { TransactionService } from "../../transaction/transaction.service";
+import { TransactionService } from "../../models/transaction/transaction.service";
 
 export class WebhookTransactionService extends WebhookService {
   constructor(

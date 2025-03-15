@@ -6,4 +6,5 @@ export enum LoggerPaths {
   CLIENT = "logs/client.log",
   WEBHOOK_EVENTS = "logs/webhook-events.log",
   PAYMENTS = "logs/payments.log",
+  HELIUS_WEBHOOK_SERVICE = "logs/helius-webhook-service.log",
 }

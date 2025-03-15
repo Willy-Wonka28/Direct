@@ -4,7 +4,9 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
 // Your wallet address
-const walletAddress = new PublicKey("YourWalletPublicKeyHere");
+const walletAddress = new PublicKey(
+  "5z4WLC6mr74hb6roPov1xBwnsYNaQsLcTy6YM6LWYpre"
+);
 
 async function requestAirdrop() {
   console.log("Requesting airdrop...");

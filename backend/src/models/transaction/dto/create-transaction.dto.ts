@@ -5,14 +5,7 @@ import {
   Bank,
   ReceiverCurrency,
 } from "@prisma/client";
-import {
-  IsDefined,
-  IsNumber,
-  IsString,
-  IsEnum,
-  IsOptional,
-  IsDecimal,
-} from "class-validator";
+import { IsDefined, IsNumber, IsString, IsEnum } from "class-validator";
 
 export class CreateTransactionDto
   implements

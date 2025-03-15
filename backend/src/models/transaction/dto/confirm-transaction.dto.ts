@@ -3,7 +3,7 @@ import { IsBoolean, IsEnum, IsNumber, IsString } from "class-validator";
 
 export class ConfirmTransactionDto {
   @IsString()
-  declare publicKey: string;
+  declare senderPublicKey: string;
 
   @IsNumber()
   declare amountInToken: number;

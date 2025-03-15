@@ -5,7 +5,7 @@ import { WebhookTransactionService } from "./webhook-transaction.service";
 import { LoggerPaths } from "../../constants/logger-paths.enum";
 import { LoggerService } from "../../logger/logger.service";
 import { WebhookEvent } from "./webhook.events";
-import { transactionService } from "../../transaction/transaction.service";
+import { transactionService } from "../../models/transaction/transaction.service";
 const logger = new LoggerService(LoggerPaths.WEBHOOK_EVENTS);
 const webhookTransactionService = new WebhookTransactionService(
   logger,

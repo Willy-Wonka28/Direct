@@ -1,20 +1,20 @@
 import { RequestHandler } from "express";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { transactionService, TransactionService } from "./transaction.service";
-import webhookTransactionService from "../utils/webhook";
+import webhookTransactionService from "../../utils/webhook";
 import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
-import { WebhookEvent } from "../utils/webhook/webhook.events";
-import { UtilService } from "../models/util/util.service";
-import { InvalidAccountException } from "../utils/exceptions/invalid-account.exception";
-import { DuplicateTransactionException } from "../utils/exceptions/duplicate-transaction.exception";
-import { utilService } from "../models/util/util.router";
+import { WebhookEvent } from "../../utils/webhook/webhook.events";
+import { UtilService } from "../util/util.service";
+import { InvalidAccountException } from "../../utils/exceptions/invalid-account.exception";
+import { DuplicateTransactionException } from "../../utils/exceptions/duplicate-transaction.exception";
+import { utilService } from "../util/util.router";
 import {
   paymentService,
   PaymentService,
-} from "../utils/payment/payment.service";
+} from "../../utils/payment/payment.service";
 import { TransactionStatus } from "@prisma/client";
-import { ResponseDto } from "../dto/response.dto";
-import { ResponseStatus } from "../constants/response-status.enum";
+import { ResponseDto } from "../../dto/response.dto";
+import { ResponseStatus } from "../../constants/response-status.enum";
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -109,22 +109,22 @@ export class TransactionController {
         return;
       }
       // -------------------------------
-      // * create transfer recipient
-      const receiverBankCode = this.utilService.getBankCode(
-        transaction.receiverBank
-      );
-      const recipientCode = await this.paymentService.createTransferRecipient(
-        transaction.receiverName,
-        transaction.receiverAccountNo,
-        receiverBankCode
-      );
+      // // * create transfer recipient
+      // const receiverBankCode = this.utilService.getBankCode(
+      //   transaction.receiverBank
+      // );
+      // const recipientCode = await this.paymentService.createTransferRecipient(
+      //   transaction.receiverName,
+      //   transaction.receiverAccountNo,
+      //   receiverBankCode
+      // );
 
-      // * initiate transfer
-      const transferResponse = await this.paymentService.initiateTransfer(
-        transaction.receiverAmount * 1000, //converted to Kobo
-        recipientCode,
-        "Payment for received currency"
-      );
+      // // * initiate transfer
+      // const transferResponse = await this.paymentService.initiateTransfer(
+      //   transaction.receiverAmount * 1000, //converted to Kobo
+      //   recipientCode,
+      //   "Payment for received currency"
+      // );
       // -------------------------------
       // todo: create interval to verify payment
       // * update transaction status to "successful"

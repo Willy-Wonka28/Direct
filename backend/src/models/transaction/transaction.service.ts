@@ -4,11 +4,11 @@ import {
   TransactionRepository,
 } from "../repositories/transaction.repositories";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { LoggerService } from "../logger/logger.service";
-import { InternalServerErrorException } from "../utils/exceptions/internal-server.exception";
-import { NotFoundException } from "../utils/exceptions/not-found.exception";
+import { LoggerService } from "../../logger/logger.service";
+import { InternalServerErrorException } from "../../utils/exceptions/internal-server.exception";
+import { NotFoundException } from "../../utils/exceptions/not-found.exception";
 import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
-import { LoggerPaths } from "../constants/logger-paths.enum";
+import { LoggerPaths } from "../../constants/logger-paths.enum";
 
 export class TransactionService {
   constructor(
@@ -50,7 +50,7 @@ export class TransactionService {
     if (!transaction) {
       throw new NotFoundException(
         "Transaction could not be found",
-        `Transaction with publicKey ${payload.publicKey} not found`
+        `Transaction with publicKey ${payload.senderPublicKey} not found`
       );
     }
     return transaction;
