@@ -17,12 +17,6 @@ app.use(cors(AppEnum.CORS_OPTIONS));
 app.use("/", router);
 const logger = new LoggerService(LoggerPaths.APP);
 
-// app.use((req, res, next) => {
-//   logger.info(`Incoming request: ${req.method} ${req.url}`);
-//   next();
-// });
-
-// Not Found Route Handler
 app.use(HomeController.notFound);
 // Global Error Handler
 app.use(errorHandler);

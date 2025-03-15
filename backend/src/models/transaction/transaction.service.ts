@@ -2,7 +2,7 @@ import { Transaction, TransactionStatus } from "@prisma/client";
 import {
   transactionRepository,
   TransactionRepository,
-} from "../repositories/transaction.repositories";
+} from "./transaction.repositories";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { LoggerService } from "../../logger/logger.service";
 import { InternalServerErrorException } from "../../utils/exceptions/internal-server.exception";

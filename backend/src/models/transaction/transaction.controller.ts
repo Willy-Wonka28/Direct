@@ -15,6 +15,7 @@ import {
 import { TransactionStatus } from "@prisma/client";
 import { ResponseDto } from "../../dto/response.dto";
 import { ResponseStatus } from "../../constants/response-status.enum";
+import { TransactionFailedException } from "../../utils/exceptions/transaction-failed.exception";
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -105,8 +106,9 @@ export class TransactionController {
         webhookTransactionService
           .to(transaction.id)
           .emit(WebhookEvent.TRANSACTION_FAILED, payload);
-        res.status(400).json({ message: "Transaction not confirmed." });
-        return;
+        throw new TransactionFailedException(
+          "Transaction from sender failed before fiat transaction"
+        );
       }
       // -------------------------------
       // // * create transfer recipient

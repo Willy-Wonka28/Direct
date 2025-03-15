@@ -44,6 +44,7 @@ export class TransactionRepository {
         status: TransactionStatus.PENDING,
       },
     });
+    console.log(transactions);
     // ? returning the last transaction incase multiple transactions are found (since the last one will get payed first)
     return transactions.length > 0
       ? transactions[transactions.length - 1]

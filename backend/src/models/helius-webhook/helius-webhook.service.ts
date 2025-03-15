@@ -6,7 +6,7 @@ import { LoggerPaths } from "../../constants/logger-paths.enum";
 export class HeliusWebhookService {
   constructor(private readonly logger: LoggerService) {}
   extractData(payload: HeliusWebhookData) {
-    const status = !!payload.transactionError;
+    const status = !payload.transactionError;
 
     const timestamp = new Date(payload.timestamp * 1000).toLocaleString();
 
@@ -36,7 +36,7 @@ export class HeliusWebhookService {
         senderPublicKey,
         token: token as Token,
       };
-
+      console.log(JSON.stringify(extractedData));
       return extractedData;
     } else {
       throw new InvalidRequestBodyException("No Native Transfers found");
