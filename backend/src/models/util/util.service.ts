@@ -67,14 +67,14 @@ export class UtilService {
     try {
       const response = await axios.get("https://api.paystack.co/bank", {
         headers: {
-          // Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRET_KEY)}`,
+          Authorization: `Bearer ${configService.get(ENV.PAYSTACK_SECRET_KEY)}`,
           Accept: "application/json",
         },
       });
       this.logger.info("Banks fetched successfully", response.data);
       return response.data.data; // Array of banks with their codes
     } catch (error: any) {
-      console.error(
+      this.logger.error(
         "Error fetching banks:",
         error.response?.data || error.message
       );

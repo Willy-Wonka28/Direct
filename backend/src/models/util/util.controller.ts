@@ -6,7 +6,7 @@ export class UtilsController {
   constructor(private readonly utilService: UtilService) {}
 
   getBank: RequestHandler = (req, res, next) => {
-    const banks = this.utilService.listBanks();
+    const banks = this.utilService.getBanks();
     const resObj = new ResponseDto(
       "Banks fetched successfully",
       ResponseStatus.SUCCESS,
