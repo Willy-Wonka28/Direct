@@ -16,7 +16,7 @@ const validator = new Validator();
 utilRouter.get("/banks", utilController.getBank);
 utilRouter.get(
   "/verify-account",
-  validator.single(VerifyAccountDto),
+  validator.single(VerifyAccountDto, "query"),
   utilController.verifyBank
 );
 utilRouter.get("/tokens", utilController.getTokens);

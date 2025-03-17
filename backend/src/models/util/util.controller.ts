@@ -53,7 +53,7 @@ export class UtilsController {
 
   verifyBank: RequestHandler = async (req, res, next) => {
     try {
-      const { bank, accountNumber } = req.body;
+      const { bank, accountNumber } = req.query as any;
       const result = await this.utilService.verifyAccountNumber(
         bank,
         accountNumber
