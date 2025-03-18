@@ -18,14 +18,14 @@ Direct consists of **three core components**:
 ## Tech Stack
 
 - **Frontend:** React.js, Solana Wallet Adapter, Socket.io
-- **Backend:** Express.js, Solana Web3.js, PostgreSQL, Squad API
-- **Smart Contract:** Rust (Seahorse), Solana CLI
+- **Backend:** Express.js, Solana Web3.js, PostgreSQL
+- **Smart Contract:** Rust (Anchor or Native Rust), Solana CLI
 
 ## Getting Started
 
 ### Clone the repository
 
 ```sh
-git clone https://github.com/yourusername/direct.git
+git clone https://github.com/Willy-Wonka28/Direct.git
 cd direct
 ```
