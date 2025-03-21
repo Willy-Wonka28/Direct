@@ -4,8 +4,10 @@ import "./App.css";
 import Form from "./UI/Form";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { getWalletBalance } from "./Wallet/Balance";
+import TransactionTable from "./UI/Table";
 
 const App = () => {
+  localStorage.clear()
   const { publicKey } = useWallet();
   const key = publicKey ? publicKey.toBase58() : null;
   const [balance, setBalance] = useState(null);
@@ -19,7 +21,7 @@ const App = () => {
     };
 
     fetchBalance();
-  }, [publicKey]); 
+  }, [publicKey]);
 
   return (
     <div>
@@ -42,6 +44,9 @@ const App = () => {
         <div className="flex items-center justify-center">
           <Form />
         </div>
+      </div>
+      <div>
+        <TransactionTable />
       </div>
     </div>
   );
