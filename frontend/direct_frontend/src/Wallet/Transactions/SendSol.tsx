@@ -2,11 +2,13 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { savePendingTransaction } from "./SavePendingTransactions";
 import initializeTransaction from "./InitializeTransaction";
+import { joinTransactionRoom } from "../../Websockets/joinTransactionRoom";
+import { useContext } from "react";
 
 const useSendSol = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-
+  const { transactions, setTransactions } = useContext(TransactionContext);
   const sendSol = async ({
     solAmount,
     acctNumber,
@@ -33,6 +35,9 @@ const useSendSol = () => {
     if (!response.success) {
       return response;
     }
+
+    // if successful
+    joinTransactionRoom(response.data.id);
 
     try {
       const receiver = new PublicKey(

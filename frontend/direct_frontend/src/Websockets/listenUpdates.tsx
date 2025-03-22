@@ -1,10 +1,10 @@
-import { io } from "socket.io-client";
+import { socket } from "./index.ts";
 
-const socket = io("https://direct-production.up.railway.app/transactions", {});
-
-export const listenForTransactionUpdates = (updateTransactionStatus: (data: any) => void) => {
-  socket.on("transaction_update", (data) => {
+export const listenForTransactionUpdates = (
+  updateTransactionStatus: (data: any) => void
+) => {
+  socket.emit("join_transaction_room", (data) => {
     console.log("Received transaction update:", data);
-    updateTransactionStatus(data); 
+    updateTransactionStatus(data);
   });
 };
