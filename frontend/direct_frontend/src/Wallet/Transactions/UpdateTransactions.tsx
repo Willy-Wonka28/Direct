@@ -10,8 +10,8 @@ const updateTransactionStatus = (data: any) => {
 
   if (index !== -1) {
     transactions[index] = {
-      ...transactions[index], // Keep all existing data
-      status: data.status, // Only update status
+      ...transactions[index], 
+      status: data.status, 
       updatedAt: data.updatedAt || transactions[index].updatedAt, // Keep updatedAt if provided
     };
 
@@ -23,12 +23,10 @@ const TransactionTracker = () => {
   useEffect(() => {
     listenForTransactionUpdates(updateTransactionStatus);
 
-    return () => {
-      // Optional: Add cleanup logic if needed in your WebSocket listener
-    };
+
   }, []);
 
-  return null; // This component doesn't render anything, it just listens
+  return null; 
 };
 
 export default TransactionTracker;

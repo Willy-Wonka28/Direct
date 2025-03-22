@@ -22,7 +22,6 @@ const useSendSol = () => {
       return { success: false, message: "Wallet not connected." };
     }
 
-    // Step 1: Notify Backend
     const response = await initializeTransaction({
       publicKey: publicKey.toBase58(),
       solAmount,
@@ -31,13 +30,9 @@ const useSendSol = () => {
       name,
     });
 
-    
-
     if (!response.success) {
-      return response; // Return failure if transaction fails to initialize
+      return response;
     }
-
-    savePendingTransaction(response.data);
 
     try {
       const receiver = new PublicKey(
@@ -59,6 +54,8 @@ const useSendSol = () => {
       await connection.confirmTransaction(signature, "confirmed");
 
       console.log(`✅ Transaction Successful: ${signature}`);
+      savePendingTransaction(response.data);
+
       return { success: true, message: `Transaction Successful: ${signature}` };
     } catch (error) {
       console.error("❌ Transaction Failed:", error);
