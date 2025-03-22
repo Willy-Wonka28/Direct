@@ -1,10 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://direct-production.up.railway.app/transactions", {
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 3000,
-});
+const socket = io("https://direct-production.up.railway.app/transactions", {});
 
 export const listenForTransactionUpdates = (updateTransactionStatus: (data: any) => void) => {
   socket.on("transaction_update", (data) => {

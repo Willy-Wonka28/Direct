@@ -19,7 +19,7 @@ const initializeTransaction = async ({
   const submittedData = {
     sender: uuidv4(),
     publicKey,
-    senderToken: "USDT",
+    senderToken: "SOL",
     senderAmount: solAmount,
     receiverCurrency: "NGN",
     receiverAccountNo: acctNumber,
@@ -61,7 +61,6 @@ const initializeTransaction = async ({
     }
 
     if (data.status === "success") {
-      savePendingTransaction(data);
       return {
         success: true,
         message: "Transaction initialized successfully.",

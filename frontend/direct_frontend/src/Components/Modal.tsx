@@ -8,7 +8,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
 import CustomizedSnackbars from "../Components/Alert"; // Import Snackbar for notifications
-import initializeTransaction from "../Wallet/Transactions/InitializeTransaction";
+import useSendSol from "../Wallet/Transactions/SendSol"; // ✅ Import the hook
 
 const darkTheme = createTheme({
   palette: {
@@ -45,46 +45,44 @@ export default function AlertDialog({
     severity: "success" | "error" | "warning";
   } | null>(null);
 
-  const handleTransactionComplete = async () => {
-    if (!pbKey) {
-      setNotification({
-        message: "Wallet not connected. Please connect your wallet.",
-        severity: "error",
-      });
-      return;
-    }
 
-    try {
-      const data = await initializeTransaction({
-        publicKey: pbKey,
-        solAmount: solValue,
-        acctNumber: accountNumber,
-        bankName,
-        name: accountName || "Unknown User",
-      });
+const { sendSol } = useSendSol(); // ✅ Use the hook inside the component
 
-      console.log(data);
+const handleTransactionComplete = async () => {
+  if (!pbKey) {
+    setNotification({
+      message: "Wallet not connected. Please connect your wallet.",
+      severity: "error",
+    });
+    return;
+  }
 
-      if (!data.success) {
-        setNotification({ message: data.message, severity: "error" });
-      } else {
-        setNotification({
-          message: "Transaction initialized successfully!",
-          severity: "success",
-        });
+  try {
+    const response = await sendSol({
+      solAmount: solValue,
+      acctNumber: accountNumber,
+      bankName,
+      name: accountName || "Unknown User",
+    });
 
-        refreshTransactions(); // 🔥 Refresh transactions when confirmed!
-      }
+    setNotification({
+      message: response.message,
+      severity: response.success ? "success" : "error",
+    });
 
+    if (response.success) {
+      refreshTransactions();
       handleClose();
-    } catch (error) {
-      console.error("Transaction Failed:", error);
-      setNotification({
-        message: "Transaction failed. Please try again.",
-        severity: "error",
-      });
     }
-  };
+  } catch (error) {
+    console.error("Transaction Failed:", error);
+    setNotification({
+      message: "Transaction failed. Please try again.",
+      severity: "error",
+    });
+  }
+};
+
 
   return (
     <ThemeProvider theme={darkTheme}>

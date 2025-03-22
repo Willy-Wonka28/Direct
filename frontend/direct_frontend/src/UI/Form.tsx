@@ -41,7 +41,8 @@ const Form = () => {
   }, [bankData.solValue, getExchangeRate]);
 
   const [confirmed, setConfirmed] = useState(false);
-  const [verificationAttempted, setVerificationAttempted] = useState<string>("");
+  const [verificationAttempted, setVerificationAttempted] =
+    useState<string>("");
   const { banks, isLoading: banksLoading, error: banksError } = useBanks();
   const { accountName, accountError, accountLoading, verifyAccount } =
     useVerifyAccount();
@@ -58,15 +59,25 @@ const Form = () => {
     }, 500); // Debounce API call to avoid excessive calls
 
     return () => clearTimeout(delayDebounce);
-  }, [bankData.accountData, bankData.bankName, verifyAccount, verificationAttempted]);
+  }, [
+    bankData.accountData,
+    bankData.bankName,
+    verifyAccount,
+    verificationAttempted,
+  ]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
     setBankData((prevData) => {
       if (prevData[name as keyof BankData] === value) return prevData;
 
-      if (name === "accountData" && (!/^[0-9]{0,10}$/.test(value) || value.length > 10)) {
+      if (
+        name === "accountData" &&
+        (!/^[0-9]{0,10}$/.test(value) || value.length > 10)
+      ) {
         return prevData;
       }
 
@@ -105,6 +116,11 @@ const Form = () => {
     setConfirmed(true);
   };
 
+  const refreshTransactions = () => {
+    console.log("Refreshing transactions...");
+    // Add logic to refresh transactions if applicable
+  };
+
   if (banksError) {
     return <div>Error occurred while fetching banks.</div>;
   }
@@ -116,9 +132,12 @@ const Form = () => {
   return (
     <div>
       {alertInfo && alertInfo.show && (
-        <CustomizedSnackbars severity={alertInfo.severity} content={alertInfo.content} />
+        <CustomizedSnackbars
+          severity={alertInfo.severity}
+          content={alertInfo.content}
+        />
       )}
-      <div className="form-container">
+      <div className="form-container p-2">
         <form className="form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="sol_value">Amount of Sol</label>
@@ -195,6 +214,7 @@ const Form = () => {
         bankName={bankData.bankName || "Unknown Bank"}
         accountNumber={bankData.accountData}
         accountName={accountName}
+        refreshTransactions={refreshTransactions} // ✅ Fix: Pass refreshTransactions
       />
     </div>
   );

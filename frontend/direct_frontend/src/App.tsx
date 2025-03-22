@@ -5,11 +5,10 @@ import Form from "./UI/Form";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { getWalletBalance } from "./Wallet/Balance";
 import TransactionTable from "./UI/Table";
+import TransactionTracker from "./Wallet/Transactions/UpdateTransactions";
 
 const App = () => {
-  localStorage.clear()
   const { publicKey } = useWallet();
-  const key = publicKey ? publicKey.toBase58() : null;
   const [balance, setBalance] = useState(null);
 
   useEffect(() => {
@@ -25,8 +24,10 @@ const App = () => {
 
   return (
     <div>
+      <TransactionTracker />
+
       <Navbar />
-      <div className="mt-5 p-5 flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg">
+      <div className="mt-5 p-5 flex flex-col items-center m-2 justify-center bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-lg">
         <p className="text-white text-3xl font-semibold tracking-wide drop-shadow-lg">
           {publicKey ? (
             <>
@@ -51,5 +52,6 @@ const App = () => {
     </div>
   );
 };
+
 
 export default App;
