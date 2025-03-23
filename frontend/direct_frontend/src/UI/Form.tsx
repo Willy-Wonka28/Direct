@@ -43,6 +43,7 @@ const Form = () => {
   const [confirmed, setConfirmed] = useState(false);
   const [verificationAttempted, setVerificationAttempted] =
     useState<string>("");
+
   const { banks, isLoading: banksLoading, error: banksError } = useBanks();
   const { accountName, accountError, accountLoading, verifyAccount } =
     useVerifyAccount();
@@ -116,10 +117,19 @@ const Form = () => {
     setConfirmed(true);
   };
 
+  const [transactions, setTransactions] = useState<any[]>([]);
+
   const refreshTransactions = () => {
-    console.log("Refreshing transactions...");
-    // Add logic to refresh transactions if applicable
+    const storedTransactions = JSON.parse(
+      localStorage.getItem("pendingTransactions") || "[]"
+    );
+    setTransactions(storedTransactions); // ✅ Update state to re-render UI
   };
+
+  // ✅ Ensure UI updates when transactions change
+  useEffect(() => {
+    refreshTransactions();
+  }, []);
 
   if (banksError) {
     return <div>Error occurred while fetching banks.</div>;
@@ -216,6 +226,8 @@ const Form = () => {
         accountName={accountName}
         refreshTransactions={refreshTransactions} // ✅ Fix: Pass refreshTransactions
       />
+
+
     </div>
   );
 };

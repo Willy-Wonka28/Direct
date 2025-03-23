@@ -6,9 +6,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useState } from "react";
-import CustomizedSnackbars from "../Components/Alert"; // Import Snackbar for notifications
-import useSendSol from "../Wallet/Transactions/SendSol"; // ✅ Import the hook
+import { useEffect, useState } from "react";
+import CustomizedSnackbars from "../Components/Alert";
+import useSendSol from "../Wallet/Transactions/SendSol";
+import {
+  joinTransactionRoom,
+  leaveTransactionRoom,
+} from "../Websockets/joinTransactionRoom";
 
 const darkTheme = createTheme({
   palette: {
@@ -26,7 +30,7 @@ interface AlertDialogProps {
   bankName: string;
   accountNumber: string;
   accountName: string | null;
-  refreshTransactions: () => void; // 🔥 Accept refresh function
+  refreshTransactions: () => void;
 }
 
 export default function AlertDialog({
@@ -36,7 +40,7 @@ export default function AlertDialog({
   bankName,
   accountNumber,
   accountName,
-  refreshTransactions, // 🔥 Accept refresh function
+  refreshTransactions,
 }: AlertDialogProps) {
   const { publicKey } = useWallet();
   const pbKey = publicKey ? publicKey.toBase58() : "";
@@ -45,44 +49,77 @@ export default function AlertDialog({
     severity: "success" | "error" | "warning";
   } | null>(null);
 
+  const { sendSol } = useSendSol();
 
-const { sendSol } = useSendSol(); // ✅ Use the hook inside the component
-
-const handleTransactionComplete = async () => {
-  if (!pbKey) {
-    setNotification({
-      message: "Wallet not connected. Please connect your wallet.",
-      severity: "error",
-    });
-    return;
-  }
-
-  try {
-    const response = await sendSol({
-      solAmount: solValue,
-      acctNumber: accountNumber,
-      bankName,
-      name: accountName || "Unknown User",
-    });
-
-    setNotification({
-      message: response.message,
-      severity: response.success ? "success" : "error",
-    });
-
-    if (response.success) {
-      refreshTransactions();
-      handleClose();
+  const handleTransactionComplete = async () => {
+    setNotification(null);
+    if (!pbKey) {
+      setNotification({
+        message: "Wallet not connected. Please connect your wallet.",
+        severity: "error",
+      });
+      return;
     }
-  } catch (error) {
-    console.error("Transaction Failed:", error);
-    setNotification({
-      message: "Transaction failed. Please try again.",
-      severity: "error",
-    });
-  }
-};
 
+    try {
+      const response = await sendSol({
+        solAmount: solValue,
+        acctNumber: accountNumber,
+        bankName,
+        name: accountName || "Unknown User",
+      });
+
+      if (response.success) {
+        const transactionId = response.data.id;
+        joinTransactionRoom(transactionId); // ✅ Join room when transaction starts
+
+        const newTransaction = {
+          id: transactionId,
+          receiverName: accountName || "Unknown User",
+          sender: pbKey,
+          senderAmount: solValue,
+          status: "PENDING",
+          createdAt: new Date().toISOString(),
+        };
+
+        const storedTransactions = JSON.parse(
+          localStorage.getItem("pendingTransactions") || "[]"
+        );
+        storedTransactions.push({ data: newTransaction });
+
+        localStorage.setItem(
+          "pendingTransactions",
+          JSON.stringify(storedTransactions)
+        );
+
+        refreshTransactions();
+        handleClose();
+
+        useEffect(() => {
+          return () => leaveTransactionRoom(transactionId);
+        }, []);
+      }
+
+      if (!response.success) {
+        setNotification({
+          message: response.message,
+          severity: response.success ? "success" : "error",
+        });
+        handleClose();
+      }
+
+      setNotification({
+        message: response.message,
+        severity: response.success ? "success" : "error",
+      });
+    } catch (error) {
+      console.error("Transaction Failed:", error);
+      setNotification({
+        message: "Transaction failed. Please try again.",
+        severity: "error",
+      });
+    }
+  };
 
   return (
     <ThemeProvider theme={darkTheme}>

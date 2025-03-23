@@ -1,50 +1,50 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { listenForTransactionUpdates } from "../Websockets/listenUpdates";
-
-interface Transaction {
-  id: string;
-  receiverName: string;
-  sender: string;
-  senderAmount: number;
-  receiverAmount: number;
-  receiverBank: string;
-  receiverAccountNo: string;
-  status: string;
-  createdAt: string;
-}
+import { Transaction } from "../transaction.type";
 
 export default function TransactionTable() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const updateTransactions = () => {
-    const storedData = JSON.parse(localStorage.getItem("pendingTransactions") || "[]");
+    const storedData = JSON.parse(
+      localStorage.getItem("pendingTransactions") || "[]"
+    );
 
     if (Array.isArray(storedData)) {
-      const extractedTransactions = storedData.map((item) => item.data); // Extract transactions from `data`
-      setTransactions(extractedTransactions);
+      setTransactions(storedData.map((item) => item.data)); // ✅ Ensure re-render
     }
   };
 
   useEffect(() => {
-    updateTransactions();
+    updateTransactions(); // Load initial transactions
 
     const updateTransactionStatus = (data: any) => {
-      let storedTransactions = JSON.parse(localStorage.getItem("pendingTransactions") || "[]");
+      setTransactions((prevTransactions) =>
+        prevTransactions.map((tx) =>
+          tx.id === data.id ? { ...tx, status: data.status } : tx
+        )
+      );
 
-      const index = storedTransactions.findIndex((tx: any) => tx.data.id === data.id);
-      if (index !== -1) {
-        storedTransactions[index].data.status = data.status; // Update status inside `data`
-        localStorage.setItem("pendingTransactions", JSON.stringify(storedTransactions));
-
-        setTransactions(storedTransactions.map((tx: any) => tx.data));
-      }
+      // Update Local Storage
+      let storedTransactions = JSON.parse(
+        localStorage.getItem("pendingTransactions") || "[]"
+      );
+      storedTransactions = storedTransactions.map((tx: any) =>
+        tx.data.id === data.id
+          ? { ...tx, data: { ...tx.data, status: data.status } }
+          : tx
+      );
+      localStorage.setItem(
+        "pendingTransactions",
+        JSON.stringify(storedTransactions)
+      );
     };
 
-    listenForTransactionUpdates(updateTransactionStatus);
+    const unsubscribe = listenForTransactionUpdates(updateTransactionStatus);
 
     return () => {
-      // Cleanup if necessary
+      unsubscribe?.(); // ✅ Ensure cleanup
     };
   }, []);
 
