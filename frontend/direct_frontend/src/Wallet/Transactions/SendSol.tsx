@@ -1,12 +1,14 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-import { savePendingTransaction } from "./SavePendingTransactions";
-import initializeTransaction from "./InitializeTransaction";
+import { initializeTransaction } from "../../api/transaction.api";
 import { joinTransactionRoom } from "../../Websockets/joinTransactionRoom";
+import { useTransactions } from "../../context/TransactionContext";
 
 const useSendSol = () => {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { addTransaction } = useTransactions();
+
   const sendSol = async ({
     solAmount,
     acctNumber,
@@ -32,10 +34,10 @@ const useSendSol = () => {
 
     if (!response.success) {
       console.log(response);
-      return { success: false, message: response["message"] }; // ✅ Return an object
+      return { success: false, message: response["message"] };
     }
 
-    // if successful
+    // if successful, join transaction room to listen for updates
     joinTransactionRoom(response.data.id);
 
     try {
@@ -58,12 +60,14 @@ const useSendSol = () => {
       await connection.confirmTransaction(signature, "confirmed");
 
       console.log(`✅ Transaction Successful: ${signature}`);
-      savePendingTransaction(response.data);
+
+      // Add transaction to context and localStorage
+      addTransaction(response.data);
 
       return {
         success: true,
         message: `Transaction Successful: ${signature}`,
-        data: response.data, // ✅ Ensure this field is always included
+        data: response.data,
       };
     } catch (error) {
       console.error("❌ Transaction Failed:", error);

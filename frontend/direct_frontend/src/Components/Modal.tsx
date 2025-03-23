@@ -6,13 +6,10 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CustomizedSnackbars from "../Components/Alert";
 import useSendSol from "../Wallet/Transactions/SendSol";
-import {
-  joinTransactionRoom,
-  leaveTransactionRoom,
-} from "../Websockets/joinTransactionRoom";
+import { useTransactions } from "../context/TransactionContext";
 
 const darkTheme = createTheme({
   palette: {
@@ -30,7 +27,7 @@ interface AlertDialogProps {
   bankName: string;
   accountNumber: string;
   accountName: string | null;
-  refreshTransactions: () => void;
+  refreshTransactions?: () => void; // Made optional as we'll use the context
 }
 
 export default function AlertDialog({
@@ -40,7 +37,6 @@ export default function AlertDialog({
   bankName,
   accountNumber,
   accountName,
-  refreshTransactions,
 }: AlertDialogProps) {
   const { publicKey } = useWallet();
   const pbKey = publicKey ? publicKey.toBase58() : "";
@@ -50,6 +46,7 @@ export default function AlertDialog({
   } | null>(null);
 
   const { sendSol } = useSendSol();
+  const { refreshTransactions } = useTransactions();
 
   const handleTransactionComplete = async () => {
     setNotification(null);
@@ -69,42 +66,11 @@ export default function AlertDialog({
         name: accountName || "Unknown User",
       });
 
+      // Transaction is now handled by the context
+      // The useSendSol hook already adds the transaction to the context
+
       if (response.success) {
-        const transactionId = response.data.id;
-        joinTransactionRoom(transactionId); // ✅ Join room when transaction starts
-
-        const newTransaction = {
-          id: transactionId,
-          receiverName: accountName || "Unknown User",
-          sender: pbKey,
-          senderAmount: solValue,
-          status: "PENDING",
-          createdAt: new Date().toISOString(),
-        };
-
-        const storedTransactions = JSON.parse(
-          localStorage.getItem("pendingTransactions") || "[]"
-        );
-        storedTransactions.push({ data: newTransaction });
-
-        localStorage.setItem(
-          "pendingTransactions",
-          JSON.stringify(storedTransactions)
-        );
-
         refreshTransactions();
-        handleClose();
-
-        useEffect(() => {
-          return () => leaveTransactionRoom(transactionId);
-        }, []);
-      }
-
-      if (!response.success) {
-        setNotification({
-          message: response.message,
-          severity: response.success ? "success" : "error",
-        });
         handleClose();
       }
 
@@ -112,6 +78,10 @@ export default function AlertDialog({
         message: response.message,
         severity: response.success ? "success" : "error",
       });
+
+      if (!response.success) {
+        handleClose();
+      }
     } catch (error) {
       console.error("Transaction Failed:", error);
       setNotification({

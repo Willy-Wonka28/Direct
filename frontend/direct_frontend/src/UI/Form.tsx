@@ -6,6 +6,7 @@ import AlertDialog from "../Components/Modal";
 import useExchangeRate from "../Wallet/ExchangeRate";
 import { useWallet } from "@solana/wallet-adapter-react";
 import CustomizedSnackbars from "../Components/Alert";
+import { useTransactions } from "../context/TransactionContext";
 
 type BankData = {
   accountData: string;
@@ -15,6 +16,8 @@ type BankData = {
 
 const Form = () => {
   const { connected } = useWallet();
+  const { transactions } = useTransactions();
+
   const [bankData, setBankData] = useState<BankData>({
     accountData: "",
     bankName: null,
@@ -117,20 +120,6 @@ const Form = () => {
     setConfirmed(true);
   };
 
-  const [transactions, setTransactions] = useState<any[]>([]);
-
-  const refreshTransactions = () => {
-    const storedTransactions = JSON.parse(
-      localStorage.getItem("pendingTransactions") || "[]"
-    );
-    setTransactions(storedTransactions); // ✅ Update state to re-render UI
-  };
-
-  // ✅ Ensure UI updates when transactions change
-  useEffect(() => {
-    refreshTransactions();
-  }, []);
-
   if (banksError) {
     return <div>Error occurred while fetching banks.</div>;
   }
@@ -224,10 +213,7 @@ const Form = () => {
         bankName={bankData.bankName || "Unknown Bank"}
         accountNumber={bankData.accountData}
         accountName={accountName}
-        refreshTransactions={refreshTransactions} // ✅ Fix: Pass refreshTransactions
       />
-
-
     </div>
   );
 };

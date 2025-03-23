@@ -136,7 +136,7 @@ export class TransactionController {
       );
       webhookTransactionService
         .to(transaction.id)
-        .emit(WebhookEvent.TRANSACTION_SUCCESSFUL, payload);
+        .emit(WebhookEvent.TRANSACTION_SUCCESSFUL, transaction.id);
       res.status(200).json({ message: "Transaction confirmed successfully." });
     } catch (error) {
       next(error);

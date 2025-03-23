@@ -9,7 +9,7 @@ export type Transaction = {
   receiverAccountNo: string;
   receiverBank: string;
   receiverName: string;
-  status: string;
+  status: "pending" | "successful" | "failed";
   createdAt: string;
   updatedAt: string;
 };

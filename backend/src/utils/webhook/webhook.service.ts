@@ -1,4 +1,4 @@
-import { Socket, Server } from "socket.io";
+import { Server } from "socket.io";
 import server from "../../server";
 export class WebhookService extends Server {
   constructor(path = "") {

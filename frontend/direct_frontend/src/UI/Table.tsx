@@ -1,62 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { listenForTransactionUpdates } from "../Websockets/listenUpdates";
-import { Transaction } from "../transaction.type";
+import { useTransactions } from "../context/TransactionContext";
 
 export default function TransactionTable() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { transactions, refreshTransactions } = useTransactions();
 
-  const updateTransactions = () => {
-    const storedData = JSON.parse(
-      localStorage.getItem("pendingTransactions") || "[]"
-    );
-
-    if (Array.isArray(storedData)) {
-      setTransactions(storedData.map((item) => item.data)); // ✅ Ensure re-render
-    }
-  };
-
+  // Load transactions when component mounts
   useEffect(() => {
-    updateTransactions(); // Load initial transactions
-
-    const updateTransactionStatus = (data: any) => {
-      setTransactions((prevTransactions) =>
-        prevTransactions.map((tx) =>
-          tx.id === data.id ? { ...tx, status: data.status } : tx
-        )
-      );
-
-      // Update Local Storage
-      let storedTransactions = JSON.parse(
-        localStorage.getItem("pendingTransactions") || "[]"
-      );
-      storedTransactions = storedTransactions.map((tx: any) =>
-        tx.data.id === data.id
-          ? { ...tx, data: { ...tx.data, status: data.status } }
-          : tx
-      );
-      localStorage.setItem(
-        "pendingTransactions",
-        JSON.stringify(storedTransactions)
-      );
-    };
-
-    const unsubscribe = listenForTransactionUpdates(updateTransactionStatus);
-
-    return () => {
-      unsubscribe?.(); // ✅ Ensure cleanup
-    };
-  }, []);
+    refreshTransactions();
+  }, [refreshTransactions]);
 
   return (
-    <div className="md:p-6 p-2">
+    <div className="p-2 md:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="overflow-x-auto shadow-lg rounded-lg"
+        className="shadow-lg rounded-lg overflow-x-auto"
       >
-        <table className="min-w-full shadow-lg text-white rounded-md overflow-hidden">
+        <table className="shadow-lg rounded-md min-w-full overflow-hidden text-white">
           <thead className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
             <tr>
               <th className="px-6 py-3 text-left">Transaction ID</th>
@@ -79,7 +41,7 @@ export default function TransactionTable() {
                 >
                   <td className="px-6 py-4">{tx.id}</td>
                   <td className="px-6 py-4">{tx.receiverName}</td>
-                  <td className="px-6 py-4 text-gray-600 truncate max-w-xs">
+                  <td className="px-6 py-4 max-w-xs text-gray-600 truncate">
                     {tx.sender}
                   </td>
                   <td className="px-6 py-4 font-semibold">
@@ -87,12 +49,14 @@ export default function TransactionTable() {
                   </td>
                   <td
                     className={`px-6 py-4 font-semibold ${
-                      tx.status === "PENDING"
+                      tx.status === "pending"
                         ? "text-yellow-500"
-                        : "text-green-500"
+                        : tx.status === "successful"
+                        ? "text-green-500"
+                        : "text-red-500"
                     }`}
                   >
-                    {tx.status}
+                    {tx.status.toUpperCase()}
                   </td>
                   <td className="px-6 py-4 text-gray-500">
                     {new Date(tx.createdAt).toLocaleString()}
@@ -101,7 +65,7 @@ export default function TransactionTable() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-4 text-gray-500 text-center">
                   No pending transactions
                 </td>
               </tr>

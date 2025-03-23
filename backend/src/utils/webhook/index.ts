@@ -15,11 +15,8 @@ const webhookTransactionService = new WebhookTransactionService(
 // Initialize Events, and wait for client to emit event, to join room.
 webhookTransactionService.on(WebhookEvent.CONNECTION, (socket: Socket) => {
   logger.info("New connection established");
-  socket.on(WebhookEvent.JOIN_TRANSACTION_ROOM, () => {
-    webhookTransactionService.joinTransactionRoom(
-      socket,
-      socket.handshake.query.transactionId as string
-    );
+  socket.on(WebhookEvent.JOIN_TRANSACTION_ROOM, (transactionId: string) => {
+    webhookTransactionService.joinTransactionRoom(socket, transactionId);
   });
   socket.on(WebhookEvent.JOIN_TRANSACTION_ROOMS, (transactions: string[]) => {
     webhookTransactionService.joinTransactionRooms(socket, transactions);

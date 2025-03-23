@@ -8,7 +8,7 @@ export class WebhookTransactionService extends WebhookService {
     public logger: LoggerService,
     public readonly transactionService: TransactionService
   ) {
-    super("/transactions");
+    super("/webhook/transactions");
     logger.info("Webhook Transaction Service Initialized");
   }
   async joinTransactionRoom(socket: Socket, transactionId: string) {
