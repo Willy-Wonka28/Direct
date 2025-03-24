@@ -13,6 +13,10 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  if (req.originalUrl.includes("/websocket")) {
+    console.log("error", req.originalUrl);
+    return next(); // Let Socket.io handle it
+  }
   const status = error.status || 500;
 
   const message = error.message || "Something went wrong";

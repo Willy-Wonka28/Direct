@@ -6,9 +6,10 @@ import { TransactionService } from "../../models/transaction/transaction.service
 export class WebhookTransactionService extends WebhookService {
   constructor(
     public logger: LoggerService,
-    public readonly transactionService: TransactionService
+    public readonly transactionService: TransactionService,
+    public readonly server: any
   ) {
-    super();
+    super(server);
     logger.info("Webhook Transaction Service Initialized");
   }
   async joinTransactionRoom(socket: Socket, transactionId: string) {

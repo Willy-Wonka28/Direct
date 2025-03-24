@@ -5,7 +5,7 @@ import { WebhookEvent } from "./webhook.events";
 // Connect to the server with the correct path configuration
 export const socket = io(SERVER_URL, {
   transports: ["websocket", "polling"],
-  path: "/websocket", // Make sure path starts with a slash
+  path: "/websocket/", // Make sure path starts with a slash
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   timeout: 10000, // Increase timeout to 10 seconds

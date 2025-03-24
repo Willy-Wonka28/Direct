@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
-import server from "../../server";
-export class WebhookService extends Server {
-  constructor() {
-    super(server, {
-      path: "/websocket", // Make sure path starts with a slash
+export class WebhookService {
+  public io: Server;
+  constructor(server: any) {
+    this.io = new Server(server, {
+      path: "/websocket/", // Make sure path starts with a slash
       cors: {
         origin: "*",
         methods: ["GET", "POST"],

@@ -1,10 +1,6 @@
+import { server } from "./app";
 import app from "./app";
 import { EnvValidation } from "./utils/config/env.validation";
-import { createServer } from "http";
-
-// Create HTTP server from Express app
-const server = createServer(app);
-
 // Start the server
 server.listen(app.get("port"), () => {
   console.log("Server Starting up....");
@@ -21,5 +17,3 @@ server.listen(app.get("port"), () => {
   }
   console.log(`Press CTRL + C to stop the server`);
 });
-
-export default server;
