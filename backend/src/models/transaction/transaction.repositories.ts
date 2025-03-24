@@ -9,7 +9,7 @@ export class TransactionRepository {
   }
 
   async getTransactionById(id: string): Promise<Transaction | null> {
-    return this.transactionDelegate.findUnique({
+    return this.transactionDelegate.findFirst({
       where: { id },
     });
   }
