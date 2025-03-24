@@ -1,6 +1,10 @@
 import { socket } from "./index";
-import { Transaction } from "../transaction.type";
+import { Transaction, TransactionStatus } from "../transaction.type";
 import { WebsocketEvents } from "./websocket.events";
+import {
+  getTransactionsFromLocalStorage,
+  updateTransactionsInLocalStorage,
+} from "../utils";
 
 type TransactionUpdateCallback = (updatedTransaction: Transaction) => void;
 
@@ -8,44 +12,88 @@ export const listenForTransactionUpdates = (
   callback: TransactionUpdateCallback
 ) => {
   // Listen for successful transactions
-  const handleTransactionSuccess = (transaction: Transaction) => {
-    console.log("✅ Transaction successful:", transaction);
+  const handleTransactionSuccess = (transactionData: string | Transaction) => {
+    let transaction: Transaction;
+    let transactionId: string;
 
-    // Update transaction in localStorage directly too
-    updateTransactionInLocalStorage(transaction);
+    // Handle different payload formats (string ID or full transaction object)
+    if (typeof transactionData === "string") {
+      console.log("✅ Transaction successful (ID):", transactionData);
+      transactionId = transactionData;
 
+      // We only received the ID, construct a minimal transaction object
+      transaction = {
+        id: transactionId,
+        status: TransactionStatus.SUCCESS,
+        updatedAt: new Date().toISOString(),
+      } as Transaction;
+    } else {
+      console.log("✅ Transaction successful (object):", transactionData);
+      transaction = transactionData;
+      transactionId = transaction.id;
+    }
+
+    // Update the transaction in localStorage
+    updateTransactionInLocalStorage(transactionId, TransactionStatus.SUCCESS);
+
+    // Notify the component through the callback
     callback(transaction);
   };
 
   // Listen for failed transactions
-  const handleTransactionFailure = (transaction: Transaction) => {
-    console.log("❌ Transaction failed:", transaction);
+  const handleTransactionFailure = (transactionData: string | Transaction) => {
+    let transaction: Transaction;
+    let transactionId: string;
 
-    // Update transaction in localStorage directly too
-    updateTransactionInLocalStorage(transaction);
+    // Handle different payload formats (string ID or full transaction object)
+    if (typeof transactionData === "string") {
+      console.log("❌ Transaction failed (ID):", transactionData);
+      transactionId = transactionData;
 
+      // We only received the ID, construct a minimal transaction object
+      transaction = {
+        id: transactionId,
+        status: TransactionStatus.FAILED,
+        updatedAt: new Date().toISOString(),
+      } as Transaction;
+    } else {
+      console.log("❌ Transaction failed (object):", transactionData);
+      transaction = transactionData;
+      transactionId = transaction.id;
+    }
+
+    // Update the transaction in localStorage
+    updateTransactionInLocalStorage(transactionId, TransactionStatus.FAILED);
+
+    // Notify the component through the callback
     callback(transaction);
   };
 
-  // Helper function to update localStorage directly
+  // Helper function to update a transaction in localStorage by ID
   const updateTransactionInLocalStorage = (
-    updatedTx: Partial<Transaction> & { id: string }
+    transactionId: string,
+    newStatus: TransactionStatus
   ) => {
     try {
-      const storedTransactions = JSON.parse(
-        localStorage.getItem("pendingTransactions") || "[]"
-      );
+      // Get all transactions from localStorage
+      const transactions = getTransactionsFromLocalStorage();
 
-      const updatedTransactions = storedTransactions.map((tx: Transaction) => {
-        if (tx.id === updatedTx.id) {
-          return { ...tx, ...updatedTx };
+      // Find and update the specific transaction
+      const updatedTransactions = transactions.map((tx) => {
+        if (tx.id === transactionId) {
+          return {
+            ...tx,
+            status: newStatus,
+            updatedAt: new Date().toISOString(),
+          };
         }
         return tx;
       });
 
-      localStorage.setItem(
-        "pendingTransactions",
-        JSON.stringify(updatedTransactions)
+      // Save the updated transactions back to localStorage
+      updateTransactionsInLocalStorage(updatedTransactions);
+      console.log(
+        `Transaction ${transactionId} updated in localStorage to status: ${newStatus}`
       );
     } catch (error) {
       console.error("Error updating transaction in localStorage:", error);

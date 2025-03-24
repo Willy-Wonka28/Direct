@@ -3,7 +3,14 @@ import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { ApiResponse, initializeTransaction } from "../../api/transaction.api";
 import { joinTransactionRoom } from "../../Websockets/joinTransactionRoom";
 import { useTransactions } from "../../context/TransactionContext";
-import { Transaction as AppTransaction } from "../../transaction.type";
+import {
+  Transaction as AppTransaction,
+  TransactionStatus,
+} from "../../transaction.type";
+import {
+  updateTransactionsInLocalStorage,
+  getTransactionsFromLocalStorage,
+} from "../../utils";
 
 interface SendSolParams {
   solAmount: number;
@@ -53,6 +60,16 @@ const useSendSol = () => {
 
       const serverTransaction = initResponse.data;
 
+      // Store the initialized transaction in localStorage directly
+      // This ensures we track it even if the blockchain transaction fails
+      const existingTransactions = getTransactionsFromLocalStorage();
+      const updatedTransactions = [...existingTransactions, serverTransaction];
+      updateTransactionsInLocalStorage(updatedTransactions);
+      console.log(
+        "Initialized transaction stored in localStorage:",
+        serverTransaction.id
+      );
+
       // Step 2: Join transaction room to listen for updates
       joinTransactionRoom(serverTransaction.id);
 
@@ -88,7 +105,7 @@ const useSendSol = () => {
 
         console.log(`✅ Transaction Successful: ${signature}`);
 
-        // Step 4: Add transaction to context
+        // Step 4: Add transaction to context (now redundant with localStorage but kept for state consistency)
         addTransaction(serverTransaction);
 
         return {
@@ -98,6 +115,10 @@ const useSendSol = () => {
         };
       } catch (error) {
         console.error("❌ Blockchain Transaction Failed:", error);
+
+        // Even if blockchain transaction fails, we still keep the record
+        // The backend will eventually mark it as failed via webhook
+
         return {
           success: false,
           message: `Transaction failed: ${

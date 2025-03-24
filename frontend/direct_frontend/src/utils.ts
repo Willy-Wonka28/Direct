@@ -61,7 +61,75 @@ export async function refreshTransactionStatuses(
 
 // Helper function to update transactions in localStorage
 export function updateTransactionsInLocalStorage(transactions: Transaction[]) {
-  localStorage.setItem("pendingTransactions", JSON.stringify(transactions));
+  try {
+    localStorage.setItem("pendingTransactions", JSON.stringify(transactions));
+    console.log(`Updated ${transactions.length} transactions in localStorage`);
+  } catch (error) {
+    console.error("Failed to update localStorage:", error);
+  }
+}
+
+// Helper function to retrieve transactions from localStorage
+export function getTransactionsFromLocalStorage(): Transaction[] {
+  try {
+    const storedData = localStorage.getItem("pendingTransactions");
+    if (!storedData) return [];
+
+    const parsedData = JSON.parse(storedData);
+
+    // Ensure we have an array of transactions
+    return Array.isArray(parsedData) ? parsedData : [];
+  } catch (error) {
+    console.error("Error retrieving transactions from localStorage:", error);
+    return [];
+  }
+}
+
+// Helper function to add a single transaction to localStorage
+export function addTransactionToLocalStorage(transaction: Transaction): void {
+  try {
+    const existingTransactions = getTransactionsFromLocalStorage();
+    const exists = existingTransactions.some((tx) => tx.id === transaction.id);
+
+    if (!exists) {
+      const updatedTransactions = [...existingTransactions, transaction];
+      updateTransactionsInLocalStorage(updatedTransactions);
+      console.log(`Added transaction ${transaction.id} to localStorage`);
+    } else {
+      console.log(
+        `Transaction ${transaction.id} already exists in localStorage`
+      );
+    }
+  } catch (error) {
+    console.error("Error adding transaction to localStorage:", error);
+  }
+}
+
+// Helper function to update a single transaction in localStorage
+export function updateTransactionStatusInLocalStorage(
+  transactionId: string,
+  status: TransactionStatus
+): void {
+  try {
+    const existingTransactions = getTransactionsFromLocalStorage();
+    const updatedTransactions = existingTransactions.map((tx) => {
+      if (tx.id === transactionId) {
+        return {
+          ...tx,
+          status,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      return tx;
+    });
+
+    updateTransactionsInLocalStorage(updatedTransactions);
+    console.log(
+      `Updated transaction ${transactionId} status to ${status} in localStorage`
+    );
+  } catch (error) {
+    console.error("Error updating transaction status in localStorage:", error);
+  }
 }
 
 // Helper function to format transaction amount with currency

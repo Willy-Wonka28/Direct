@@ -6,10 +6,10 @@ import React, {
   useCallback,
 } from "react";
 import { Transaction, TransactionStatus } from "../transaction.type";
-import { socket } from "../Websockets/index";
-import { WebsocketEvents } from "../Websockets/websocket.events";
-import { joinTransactionRooms } from "../Websockets/joinTransactionRoom";
-import { updateTransactionsInLocalStorage } from "../utils";
+import {
+  updateTransactionsInLocalStorage,
+  getTransactionsFromLocalStorage,
+} from "../utils";
 
 interface TransactionContextType {
   transactions: Transaction[];
@@ -38,82 +38,22 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [isInitialized]);
 
-  // Set up WebSocket listeners and room joining
+  // Save transactions to localStorage whenever they change
   useEffect(() => {
-    if (transactions.length === 0) return;
-
-    // Get pending transaction IDs
-    const pendingTransactionIds = transactions
-      .filter((tx) => tx.status === TransactionStatus.PENDING)
-      .map((tx) => tx.id);
-
-    // Join rooms for all pending transactions
-    if (pendingTransactionIds.length > 0) {
-      joinTransactionRooms(pendingTransactionIds);
+    if (isInitialized) {
+      // Only save after initial load
+      updateTransactionsInLocalStorage(transactions);
+      console.log(`Saved ${transactions.length} transactions to localStorage`);
     }
-
-    // Listen for transaction updates
-    const handleTransactionSuccess = (transactionId: string) => {
-      setTransactionsState((prevTransactions) =>
-        prevTransactions.map((tx) => {
-          if (tx.id === transactionId) {
-            return {
-              ...tx,
-              status: TransactionStatus.SUCCESS,
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return tx;
-        })
-      );
-      console.log(`✅ Transaction successful: ${transactionId}`);
-    };
-
-    const handleTransactionFailure = (transactionId: string) => {
-      setTransactionsState((prevTransactions) =>
-        prevTransactions.map((tx) => {
-          if (tx.id === transactionId) {
-            return {
-              ...tx,
-              status: TransactionStatus.FAILED,
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return tx;
-        })
-      );
-      console.log(`❌ Transaction failed: ${transactionId}`);
-    };
-
-    socket.on(WebsocketEvents.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
-    socket.on(WebsocketEvents.TRANSACTION_FAILED, handleTransactionFailure);
-
-    // Save updated transactions to localStorage whenever they change
-    updateTransactionsInLocalStorage(transactions);
-
-    return () => {
-      socket.off(
-        WebsocketEvents.TRANSACTION_SUCCESSFUL,
-        handleTransactionSuccess
-      );
-      socket.off(WebsocketEvents.TRANSACTION_FAILED, handleTransactionFailure);
-    };
-  }, [transactions]);
-
-  // Save transactions to localStorage
-  const saveTransactionsToLocalStorage = (txs: Transaction[]) => {
-    updateTransactionsInLocalStorage(txs);
-  };
+  }, [transactions, isInitialized]);
 
   const refreshTransactions = useCallback(() => {
     try {
-      const storedTransactions = JSON.parse(
-        localStorage.getItem("pendingTransactions") || "[]"
+      const loadedTransactions = getTransactionsFromLocalStorage();
+      console.log(
+        `Loaded ${loadedTransactions.length} transactions from localStorage`
       );
-
-      const extractedTransactions = storedTransactions;
-
-      setTransactionsState(extractedTransactions);
+      setTransactionsState(loadedTransactions);
     } catch (error) {
       console.error("Error loading transactions:", error);
       setTransactionsState([]);
@@ -122,26 +62,21 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setTransactions = useCallback((txs: Transaction[]) => {
     setTransactionsState(txs);
-    saveTransactionsToLocalStorage(txs);
   }, []);
 
   const addTransaction = useCallback((transaction: Transaction) => {
     setTransactionsState((prev) => {
       // Check if transaction already exists
       const exists = prev.some((tx) => tx.id === transaction.id);
-      if (exists) return prev;
+      if (exists) {
+        // Update it if it exists but don't add a duplicate
+        return prev.map((tx) =>
+          tx.id === transaction.id ? { ...tx, ...transaction } : tx
+        );
+      }
 
       // Add new transaction
       const updatedTransactions = [...prev, transaction];
-
-      // Save to localStorage
-      saveTransactionsToLocalStorage(updatedTransactions);
-
-      // Join room for new transaction if it's pending
-      if (transaction.status === TransactionStatus.PENDING) {
-        joinTransactionRooms([transaction.id]);
-      }
-
       return updatedTransactions;
     });
   }, []);
@@ -150,14 +85,10 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     setTransactionsState((prev) => {
       const updatedTransactions = prev.map((tx) => {
         if (tx.id === updatedTransaction.id) {
-          const updated = { ...tx, ...updatedTransaction };
-          return updated;
+          return { ...tx, ...updatedTransaction };
         }
         return tx;
       });
-
-      // Save to localStorage
-      saveTransactionsToLocalStorage(updatedTransactions);
 
       return updatedTransactions;
     });
