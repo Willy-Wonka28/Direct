@@ -1,9 +1,20 @@
 import { SERVER_URL } from "../../../../config";
 import { Transaction } from "./../transaction.type";
 
+// Type for API responses
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: any;
+}
+
+/**
+ * Fetches a transaction by ID from the server
+ */
 export async function getTransactionById(
   transactionId: string
-): Promise<{ success: boolean; transaction?: Transaction; error?: string }> {
+): Promise<ApiResponse<Transaction>> {
   try {
     const response = await fetch(
       `${SERVER_URL}/api/transaction/${transactionId}`,
@@ -15,24 +26,26 @@ export async function getTransactionById(
       }
     );
 
+    const responseData = await response.json();
+
     if (!response.ok) {
       return {
         success: false,
-        error: `Server responded with status: ${response.status}`,
+        message: responseData.message || `Error: ${response.statusText}`,
+        error: responseData.error || response.status,
       };
     }
 
-    const responseData = await response.json();
-    const transaction = responseData.data;
-
     return {
       success: true,
-      transaction,
+      message: responseData.message || "Transaction retrieved successfully",
+      data: responseData.data,
     };
   } catch (error) {
     console.error("Error fetching transaction:", error);
     return {
       success: false,
+      message: "Failed to connect to server",
       error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }
@@ -46,15 +59,19 @@ interface TransactionDataProp {
   name: string;
 }
 
+/**
+ * Initializes a new transaction with the server
+ * Returns the transaction data if successful, or throws an error with appropriate message
+ */
 export const initializeTransaction = async ({
   publicKey,
   solAmount,
   acctNumber,
   bankName,
   name,
-}: TransactionDataProp) => {
+}: TransactionDataProp): Promise<ApiResponse<Transaction>> => {
   const submittedData = {
-    sender: "anonymous username",
+    sender: "anonymous user",
     publicKey,
     senderToken: "SOL",
     senderAmount: solAmount,
@@ -76,41 +93,47 @@ export const initializeTransaction = async ({
       }
     );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to initialize transaction: ${response.statusText}`
-      );
-    }
-
     const data = await response.json();
+    console.log("Server response:", data);
 
-    console.log(data);
+    // Handle different response scenarios
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to initialize transaction",
+        error: data.error || response.statusText,
+      };
+    }
 
     if (data.error === "Duplicate Transaction Error") {
       return {
         success: false,
-        message: "A Duplicate Pending Transfer was Detected.",
+        message: "A duplicate pending transfer was detected",
+        error: "DUPLICATE_TRANSACTION",
       };
     }
 
     if (data.status === "error") {
-      return { success: false, message: data.message };
-    }
-
-    if (data.status === "success") {
       return {
-        success: true,
-        message: "Transaction initialized successfully.",
-        data,
+        success: false,
+        message: data.message || "An error occurred",
+        error: data.error || "UNKNOWN_ERROR",
       };
     }
 
-    return { success: false, message: "Unexpected response from the server." };
-  } catch (err) {
-    console.error("Transaction initialization failed:", err);
+    // Success case
+    return {
+      success: true,
+      message: "Transaction initialized successfully",
+      data: data.data || data, // Handle different response formats
+    };
+  } catch (error) {
+    console.error("Transaction initialization failed:", error);
     return {
       success: false,
-      message: "Transaction initialization failed. Please try again later.",
+      message:
+        "Could not connect to server. Please check your internet connection.",
+      error: error instanceof Error ? error.message : "NETWORK_ERROR",
     };
   }
 };

@@ -16,9 +16,9 @@ export const useSavePendingTransaction = () => {
 };
 
 // Keep the old function for backward compatibility
-export const savePendingTransaction = (tx: any) => {
+export const savePendingTransaction = (tx: Transaction) => {
   try {
-    const transactions: any[] = JSON.parse(
+    const transactions: Transaction[] = JSON.parse(
       localStorage.getItem("pendingTransactions") || "[]"
     );
     transactions.push(tx);

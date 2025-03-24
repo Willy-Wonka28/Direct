@@ -36,12 +36,11 @@ export const listenForTransactionUpdates = (
         localStorage.getItem("pendingTransactions") || "[]"
       );
 
-      const updatedTransactions = storedTransactions.map((item: any) => {
-        const tx = item.data ? item.data : item;
+      const updatedTransactions = storedTransactions.map((tx: Transaction) => {
         if (tx.id === updatedTx.id) {
-          return { data: { ...tx, ...updatedTx } };
+          return { ...tx, ...updatedTx };
         }
-        return item;
+        return tx;
       });
 
       localStorage.setItem(

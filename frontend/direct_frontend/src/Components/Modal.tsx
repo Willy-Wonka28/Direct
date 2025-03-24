@@ -39,7 +39,7 @@ export default function AlertDialog({
   accountName,
 }: AlertDialogProps) {
   const { publicKey } = useWallet();
-  const pbKey = publicKey ? publicKey.toBase58() : "";
+  const [isProcessing, setIsProcessing] = useState(false);
   const [notification, setNotification] = useState<{
     message: string;
     severity: "success" | "error" | "warning";
@@ -50,7 +50,8 @@ export default function AlertDialog({
 
   const handleTransactionComplete = async () => {
     setNotification(null);
-    if (!pbKey) {
+
+    if (!publicKey) {
       setNotification({
         message: "Wallet not connected. Please connect your wallet.",
         severity: "error",
@@ -58,36 +59,35 @@ export default function AlertDialog({
       return;
     }
 
+    setIsProcessing(true);
+
     try {
-      const response = await sendSol({
+      const result = await sendSol({
         solAmount: solValue,
         acctNumber: accountNumber,
         bankName,
         name: accountName || "Unknown User",
       });
 
-      // Transaction is now handled by the context
-      // The useSendSol hook already adds the transaction to the context
+      // Show notification based on result
+      setNotification({
+        message: result.message,
+        severity: result.success ? "success" : "error",
+      });
 
-      if (response.success) {
+      // Close dialog on success, keep open on failure so user can try again
+      if (result.success) {
         refreshTransactions();
         handleClose();
       }
-
-      setNotification({
-        message: response.message,
-        severity: response.success ? "success" : "error",
-      });
-
-      if (!response.success) {
-        handleClose();
-      }
     } catch (error) {
-      console.error("Transaction Failed:", error);
+      console.error("Transaction operation failed:", error);
       setNotification({
-        message: "Transaction failed. Please try again.",
+        message: "Transaction failed unexpectedly. Please try again.",
         severity: "error",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -106,11 +106,19 @@ export default function AlertDialog({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ color: "#f44336" }}>
+          <Button
+            onClick={handleClose}
+            sx={{ color: "#f44336" }}
+            disabled={isProcessing}
+          >
             Cancel
           </Button>
-          <Button sx={{ color: "#4caf50" }} onClick={handleTransactionComplete}>
-            Confirm
+          <Button
+            sx={{ color: "#4caf50" }}
+            onClick={handleTransactionComplete}
+            disabled={isProcessing}
+          >
+            {isProcessing ? "Processing..." : "Confirm"}
           </Button>
         </DialogActions>
       </Dialog>

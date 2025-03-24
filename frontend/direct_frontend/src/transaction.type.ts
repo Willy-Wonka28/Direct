@@ -9,7 +9,13 @@ export type Transaction = {
   receiverAccountNo: string;
   receiverBank: string;
   receiverName: string;
-  status: "pending" | "successful" | "failed";
+  status: TransactionStatus;
   createdAt: string;
   updatedAt: string;
 };
+
+export enum TransactionStatus {
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  FAILED = "FAILED",
+}

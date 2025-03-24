@@ -105,7 +105,10 @@ export class TransactionController {
         );
         websocketTransactionService.io
           .to(transaction.id)
-          .emit(WebsocketEvents.TRANSACTION_FAILED, transaction);
+          .emit(WebsocketEvents.TRANSACTION_FAILED, {
+            ...transaction,
+            status: TransactionStatus.FAILED,
+          });
         throw new TransactionFailedException(
           "Transaction from sender failed before fiat transaction"
         );
@@ -136,7 +139,10 @@ export class TransactionController {
       );
       websocketTransactionService.io
         .to(transaction.id)
-        .emit(WebsocketEvents.TRANSACTION_SUCCESSFUL, transaction);
+        .emit(WebsocketEvents.TRANSACTION_SUCCESSFUL, {
+          ...transaction,
+          status: TransactionStatus.SUCCESS,
+        });
       res.status(200).json({ message: "Transaction confirmed successfully." });
     } catch (error) {
       next(error);

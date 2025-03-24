@@ -1,4 +1,4 @@
-import { Transaction } from "./transaction.type";
+import { Transaction, TransactionStatus } from "./transaction.type";
 import { getTransactionById } from "./api/transaction.api";
 
 export async function refreshTransactionStatuses(
@@ -11,12 +11,12 @@ export async function refreshTransactionStatuses(
   for (const tx of transactions) {
     try {
       // Only check pending transactions
-      if (tx.status === "pending") {
+      if (tx.status === TransactionStatus.PENDING) {
         const response = await getTransactionById(tx.id);
 
-        if (response.success && response.transaction) {
+        if (response.success && response.data) {
           // Update transaction if status has changed
-          const serverTx = response.transaction;
+          const serverTx = response.data;
 
           if (serverTx.status !== tx.status) {
             console.log(
@@ -35,12 +35,15 @@ export async function refreshTransactionStatuses(
           }
 
           // If it's still pending, add to pendingIds for websocket subscription
-          if (serverTx.status === "pending") {
+          if (serverTx.status === TransactionStatus.PENDING) {
             pendingIds.push(tx.id);
           }
         } else {
-          // If we couldn't fetch the transaction, still consider it pending
+          // If we couldn't fetch the transaction or got an error, still consider it pending
           pendingIds.push(tx.id);
+          console.warn(
+            `Could not verify status for transaction ${tx.id}: ${response.message}`
+          );
         }
       }
     } catch (error) {
@@ -58,8 +61,15 @@ export async function refreshTransactionStatuses(
 
 // Helper function to update transactions in localStorage
 export function updateTransactionsInLocalStorage(transactions: Transaction[]) {
-  localStorage.setItem(
-    "pendingTransactions",
-    JSON.stringify(transactions.map((tx) => ({ data: tx })))
-  );
+  localStorage.setItem("pendingTransactions", JSON.stringify(transactions));
+}
+
+// Helper function to format transaction amount with currency
+export function formatAmount(amount: number, currency: string): string {
+  if (currency === "SOL") {
+    return `${amount.toFixed(4)} SOL`;
+  } else if (currency === "NGN") {
+    return `₦${amount.toFixed(2)}`;
+  }
+  return `${amount} ${currency}`;
 }

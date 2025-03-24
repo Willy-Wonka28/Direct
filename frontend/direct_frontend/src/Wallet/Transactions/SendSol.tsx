@@ -1,8 +1,22 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-import { initializeTransaction } from "../../api/transaction.api";
+import { ApiResponse, initializeTransaction } from "../../api/transaction.api";
 import { joinTransactionRoom } from "../../Websockets/joinTransactionRoom";
 import { useTransactions } from "../../context/TransactionContext";
+import { Transaction as AppTransaction } from "../../transaction.type";
+
+interface SendSolParams {
+  solAmount: number;
+  acctNumber: string;
+  bankName: string;
+  name: string;
+}
+
+interface SendSolResult {
+  success: boolean;
+  message: string;
+  transaction?: AppTransaction;
+}
 
 const useSendSol = () => {
   const { connection } = useConnection();
@@ -14,64 +28,92 @@ const useSendSol = () => {
     acctNumber,
     bankName,
     name,
-  }: {
-    solAmount: number;
-    acctNumber: string;
-    bankName: string;
-    name: string;
-  }) => {
+  }: SendSolParams): Promise<SendSolResult> => {
     if (!publicKey) {
-      return { success: false, message: "Wallet not connected." };
+      return { success: false, message: "Wallet not connected" };
     }
-
-    const response = await initializeTransaction({
-      publicKey: publicKey.toBase58(),
-      solAmount,
-      acctNumber,
-      bankName,
-      name,
-    });
-
-    if (!response.success) {
-      console.log(response);
-      return { success: false, message: response.message };
-    }
-
-    // if successful, join transaction room to listen for updates
-    joinTransactionRoom(response.data.id);
 
     try {
-      const receiver = new PublicKey(
-        "5z4WLC6mr74hb6roPov1xBwnsYNaQsLcTy6YM6LWYpre"
-      );
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: receiver,
-          lamports: solAmount * 1e9,
-        })
-      );
+      // Step 1: Initialize transaction with the server
+      const initResponse = await initializeTransaction({
+        publicKey: publicKey.toBase58(),
+        solAmount,
+        acctNumber,
+        bankName,
+        name,
+      });
 
-      const { blockhash } = await connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
+      // Handle server-side initialization errors
+      if (!initResponse.success || !initResponse.data) {
+        return {
+          success: false,
+          message: initResponse.message,
+        };
+      }
 
-      const signature = await sendTransaction(transaction, connection);
-      await connection.confirmTransaction(signature, "confirmed");
+      const serverTransaction = initResponse.data;
 
-      console.log(`✅ Transaction Successful: ${signature}`);
+      // Step 2: Join transaction room to listen for updates
+      joinTransactionRoom(serverTransaction.id);
 
-      // Add transaction to context and localStorage
-      addTransaction(response.data);
+      // Step 3: Execute blockchain transaction
+      try {
+        const receiver = new PublicKey(
+          "5z4WLC6mr74hb6roPov1xBwnsYNaQsLcTy6YM6LWYpre"
+        );
 
-      return {
-        success: true,
-        message: `Transaction Successful: ${signature}`,
-        data: response.data,
-      };
+        const blockchainTx = new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: publicKey,
+            toPubkey: receiver,
+            lamports: solAmount * 1e9,
+          })
+        );
+
+        const { blockhash } = await connection.getLatestBlockhash();
+        blockchainTx.recentBlockhash = blockhash;
+        blockchainTx.feePayer = publicKey;
+
+        const signature = await sendTransaction(blockchainTx, connection);
+        const confirmation = await connection.confirmTransaction(
+          signature,
+          "confirmed"
+        );
+
+        if (confirmation.value.err) {
+          throw new Error(
+            `Transaction confirmed with error: ${confirmation.value.err}`
+          );
+        }
+
+        console.log(`✅ Transaction Successful: ${signature}`);
+
+        // Step 4: Add transaction to context
+        addTransaction(serverTransaction);
+
+        return {
+          success: true,
+          message: "Transaction completed successfully",
+          transaction: serverTransaction,
+        };
+      } catch (error) {
+        console.error("❌ Blockchain Transaction Failed:", error);
+        return {
+          success: false,
+          message: `Transaction failed: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          transaction: serverTransaction, // Still return the transaction for tracking
+        };
+      }
     } catch (error) {
-      console.error("❌ Transaction Failed:", error);
-      return { success: false, message: "Transaction Failed" };
+      console.error("❌ Send SOL operation failed:", error);
+      return {
+        success: false,
+        message: `An unexpected error occurred: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      };
     }
   };
 

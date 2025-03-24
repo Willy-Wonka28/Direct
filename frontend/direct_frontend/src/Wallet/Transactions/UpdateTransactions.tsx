@@ -3,6 +3,7 @@ import { useTransactions } from "../../context/TransactionContext";
 import { joinTransactionRooms } from "../../Websockets/joinTransactionRoom";
 import { listenForTransactionUpdates } from "../../Websockets/listenUpdates";
 import { refreshTransactionStatuses } from "../../utils";
+import { TransactionStatus } from "../../transaction.type";
 
 const TransactionTracker = () => {
   const { transactions, updateTransaction, setTransactions } =
@@ -48,7 +49,7 @@ const TransactionTracker = () => {
     if (!isInitialLoad) {
       // Filter for pending transactions and join their rooms
       const pendingTransactions = transactions.filter(
-        (tx) => tx.status === "pending"
+        (tx) => tx.status === TransactionStatus.PENDING
       );
 
       if (pendingTransactions.length > 0) {
@@ -70,7 +71,7 @@ const TransactionTracker = () => {
 
         // Show notification to user
         const statusMessage =
-          updatedTx.status === "successful"
+          updatedTx.status === TransactionStatus.SUCCESS
             ? "✅ Transaction completed successfully!"
             : "❌ Transaction failed";
 

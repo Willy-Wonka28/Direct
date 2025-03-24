@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { Transaction } from "../transaction.type";
+import { Transaction, TransactionStatus } from "../transaction.type";
 import { socket } from "../Websockets/index";
 import { WebsocketEvents } from "../Websockets/websocket.events";
 import { joinTransactionRooms } from "../Websockets/joinTransactionRoom";
@@ -44,7 +44,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Get pending transaction IDs
     const pendingTransactionIds = transactions
-      .filter((tx) => tx.status === "pending")
+      .filter((tx) => tx.status === TransactionStatus.PENDING)
       .map((tx) => tx.id);
 
     // Join rooms for all pending transactions
@@ -59,7 +59,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
           if (tx.id === transactionId) {
             return {
               ...tx,
-              status: "successful",
+              status: TransactionStatus.SUCCESS,
               updatedAt: new Date().toISOString(),
             };
           }
@@ -75,7 +75,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
           if (tx.id === transactionId) {
             return {
               ...tx,
-              status: "failed",
+              status: TransactionStatus.FAILED,
               updatedAt: new Date().toISOString(),
             };
           }
@@ -111,10 +111,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.getItem("pendingTransactions") || "[]"
       );
 
-      // Extract transactions from stored format
-      const extractedTransactions = storedTransactions.map((item: any) =>
-        item.data ? item.data : item
-      );
+      const extractedTransactions = storedTransactions;
 
       setTransactionsState(extractedTransactions);
     } catch (error) {
@@ -141,7 +138,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
       saveTransactionsToLocalStorage(updatedTransactions);
 
       // Join room for new transaction if it's pending
-      if (transaction.status === "pending") {
+      if (transaction.status === TransactionStatus.PENDING) {
         joinTransactionRooms([transaction.id]);
       }
 
