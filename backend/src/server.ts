@@ -1,6 +1,12 @@
 import app from "./app";
 import { EnvValidation } from "./utils/config/env.validation";
-const server = app.listen(app.get("port"), (error) => {
+import { createServer } from "http";
+
+// Create HTTP server from Express app
+const server = createServer(app);
+
+// Start the server
+server.listen(app.get("port"), () => {
   console.log("Server Starting up....");
   console.log(`=>     http://localhost:${app.get("port")}`);
 
@@ -9,6 +15,7 @@ const server = app.listen(app.get("port"), (error) => {
 
   if (EnvValidation.isDevelopment()) {
     console.log("Environment: Development");
+    console.log("Socket.IO path: /websocket"); // Log the Socket.IO path
   } else {
     console.log("Environment: Production");
   }

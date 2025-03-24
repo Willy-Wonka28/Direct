@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { transactionService, TransactionService } from "./transaction.service";
-import webhookTransactionService from "../../utils/webhook";
+import webhookTransactionService from "../../utils/websocket";
 import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
-import { WebhookEvent } from "../../utils/webhook/webhook.events";
+import { WebhookEvent } from "../../utils/websocket/websocket.events";
 import { UtilService } from "../util/util.service";
 import { InvalidAccountException } from "../../utils/exceptions/invalid-account.exception";
 import { DuplicateTransactionException } from "../../utils/exceptions/duplicate-transaction.exception";

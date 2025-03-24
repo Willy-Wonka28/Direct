@@ -1,6 +1,7 @@
 export enum WebhookEvent {
-  CONNECTION = "connection",
-  DISCONNECT = "disconnect",
+  CLIENT_CONNECTED = "connection",
+  CLIENT_DISCONNECTED = "disconnect",
+  CONNECTION_SUCCESSFUL = "connection_successful",
   TRANSACTION_SUCCESSFUL = "transaction_successful",
   TRANSACTION_FAILED = "transaction_failed",
   TRANSACTION_CANCELLED = "transaction_cancelled",

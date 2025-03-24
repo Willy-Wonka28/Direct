@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { WebhookService } from "./webhook.service";
+import { WebhookService } from "./websocket.service";
 import { LoggerService } from "../../logger/logger.service";
 import { TransactionService } from "../../models/transaction/transaction.service";
 
@@ -8,7 +8,7 @@ export class WebhookTransactionService extends WebhookService {
     public logger: LoggerService,
     public readonly transactionService: TransactionService
   ) {
-    super("/webhook/transactions");
+    super();
     logger.info("Webhook Transaction Service Initialized");
   }
   async joinTransactionRoom(socket: Socket, transactionId: string) {
