@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { transactionService, TransactionService } from "./transaction.service";
-import webhookTransactionService from "../../utils/websocket";
+import { websocketTransactionService } from "../../app";
 import { ConfirmTransactionDto } from "./dto/confirm-transaction.dto";
-import { WebhookEvent } from "../../utils/websocket/websocket.events";
+import { WebsocketEvents } from "../../utils/websocket/websocket.events";
 import { UtilService } from "../util/util.service";
 import { InvalidAccountException } from "../../utils/exceptions/invalid-account.exception";
 import { DuplicateTransactionException } from "../../utils/exceptions/duplicate-transaction.exception";
@@ -103,9 +103,9 @@ export class TransactionController {
           transaction.id,
           TransactionStatus.FAILED
         );
-        webhookTransactionService
+        websocketTransactionService.io
           .to(transaction.id)
-          .emit(WebhookEvent.TRANSACTION_FAILED, payload);
+          .emit(WebsocketEvents.TRANSACTION_FAILED, payload);
         throw new TransactionFailedException(
           "Transaction from sender failed before fiat transaction"
         );
@@ -134,9 +134,9 @@ export class TransactionController {
         transaction.id,
         TransactionStatus.SUCCESS
       );
-      webhookTransactionService
+      websocketTransactionService.io
         .to(transaction.id)
-        .emit(WebhookEvent.TRANSACTION_SUCCESSFUL, transaction.id);
+        .emit(WebsocketEvents.TRANSACTION_SUCCESSFUL, transaction.id);
       res.status(200).json({ message: "Transaction confirmed successfully." });
     } catch (error) {
       next(error);

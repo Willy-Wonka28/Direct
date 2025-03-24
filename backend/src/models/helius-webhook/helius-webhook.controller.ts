@@ -8,6 +8,7 @@ export class HeliusWebhookController {
 
   transactionMade: RequestHandler = async (req, res, next) => {
     const payload = req.body as HeliusWebhookData[];
+    console.log("helius payload", payload);
     try {
       if (!payload || payload.length === 0)
         throw new InvalidRequestBodyException("No payload provided");

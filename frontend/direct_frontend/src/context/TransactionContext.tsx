@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { Transaction } from "../transaction.type";
 import { socket } from "../Websockets/index";
-import { WebhookEvent } from "../Websockets/webhook.events";
+import { WebsocketEvents } from "../Websockets/websocket.events";
 import { joinTransactionRooms } from "../Websockets/joinTransactionRoom";
 
 interface TransactionContextType {
@@ -85,15 +85,18 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log(`❌ Transaction failed: ${transactionId}`);
     };
 
-    socket.on(WebhookEvent.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
-    socket.on(WebhookEvent.TRANSACTION_FAILED, handleTransactionFailure);
+    socket.on(WebsocketEvents.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
+    socket.on(WebsocketEvents.TRANSACTION_FAILED, handleTransactionFailure);
 
     // Save updated transactions to localStorage whenever they change
     saveTransactionsToLocalStorage(transactions);
 
     return () => {
-      socket.off(WebhookEvent.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
-      socket.off(WebhookEvent.TRANSACTION_FAILED, handleTransactionFailure);
+      socket.off(
+        WebsocketEvents.TRANSACTION_SUCCESSFUL,
+        handleTransactionSuccess
+      );
+      socket.off(WebsocketEvents.TRANSACTION_FAILED, handleTransactionFailure);
     };
   }, [transactions]);
 

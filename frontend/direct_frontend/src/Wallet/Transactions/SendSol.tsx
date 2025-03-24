@@ -34,7 +34,7 @@ const useSendSol = () => {
 
     if (!response.success) {
       console.log(response);
-      return { success: false, message: response["message"] };
+      return { success: false, message: response.message };
     }
 
     // if successful, join transaction room to listen for updates

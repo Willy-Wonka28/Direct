@@ -5,7 +5,6 @@ import { Validator } from "../../utils/middleware/validator.middleware";
 import { configService } from "../../utils/config/config.service";
 import { ENV } from "../../constants/env.enum";
 import { ConfirmTransactionDto } from "../transaction/dto/confirm-transaction.dto";
-import { BaseException } from "../../utils/exceptions/base.exception";
 import { heliusWebhookErrorHandler } from "./helius-webhook.errorHandler";
 
 const heliusWebhookRouter = Router();

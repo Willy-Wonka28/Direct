@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { WebhookTransactionService } from "./websocket-transaction.service";
 import { LoggerPaths } from "../../constants/logger-paths.enum";
 import { LoggerService } from "../../logger/logger.service";
-import { WebhookEvent } from "./websocket.events";
+import { WebsocketEvents } from "./websocket.events";
 import { transactionService } from "../../models/transaction/transaction.service";
 
 const logger = new LoggerService(LoggerPaths.WEBHOOK_EVENTS);
@@ -17,27 +17,34 @@ export function initializeWebsockets(server: any) {
 
   // Initialize Events, and wait for client to emit event, to join room.
   webhookTransactionService.io.on(
-    WebhookEvent.CLIENT_CONNECTED,
+    WebsocketEvents.CLIENT_CONNECTED,
     transactionConnectionHandler(webhookTransactionService)
   );
+  return webhookTransactionService;
 }
 
 // Initialize Events, and wait for client to emit event, to join room.
 export function transactionConnectionHandler(
-  webhookService: WebhookTransactionService
+  websocketService: WebhookTransactionService
 ) {
   return (socket: Socket) => {
     logger.info("New connection established", socket.id);
-    socket.emit(WebhookEvent.CONNECTION_SUCCESSFUL, {
+    socket.emit(WebsocketEvents.CONNECTION_SUCCESSFUL, {
       message: "Connection successful",
     });
-    socket.on(WebhookEvent.JOIN_TRANSACTION_ROOM, (transactionId: string) => {
-      webhookService.joinTransactionRoom(socket, transactionId);
-    });
-    socket.on(WebhookEvent.JOIN_TRANSACTION_ROOMS, (transactions: string[]) => {
-      webhookService.joinTransactionRooms(socket, transactions);
-    });
-    socket.on(WebhookEvent.CLIENT_DISCONNECTED, () => {
+    socket.on(
+      WebsocketEvents.JOIN_TRANSACTION_ROOM,
+      (transactionId: string) => {
+        websocketService.joinTransactionRoom(socket, transactionId);
+      }
+    );
+    socket.on(
+      WebsocketEvents.JOIN_TRANSACTION_ROOMS,
+      (transactions: string[]) => {
+        websocketService.joinTransactionRooms(socket, transactions);
+      }
+    );
+    socket.on(WebsocketEvents.CLIENT_DISCONNECTED, () => {
       // * will leave room automatically
       logger.info("Connection closed");
     });

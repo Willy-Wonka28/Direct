@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { SERVER_URL } from "../config";
-import { WebhookEvent } from "./webhook.events";
+import { WebsocketEvents } from "./websocket.events";
 
 // Connect to the server with the correct path configuration
 export const socket = io(SERVER_URL, {
@@ -16,7 +16,7 @@ socket.on("connect", () => {
   console.log("Socket connected successfully with ID:", socket.id);
 });
 
-socket.on(WebhookEvent.CONNECTION_SUCCESSFUL, (data) => {
+socket.on(WebsocketEvents.CONNECTION_SUCCESSFUL, (data) => {
   console.log("Received connection confirmation:", data);
 });
 
@@ -33,5 +33,7 @@ socket.on("disconnect", (reason) => {
 });
 
 export const stopListeningForTransactionUpdates = () => {
+  socket.off(WebsocketEvents.TRANSACTION_SUCCESSFUL);
+  socket.off(WebsocketEvents.TRANSACTION_FAILED);
   socket.off("transactionUpdate");
 };

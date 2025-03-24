@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useTransactions } from "../../context/TransactionContext";
-import { socket } from "../../Websockets/index";
-import { WebhookEvent } from "../../Websockets/webhook.events";
 import { joinTransactionRooms } from "../../Websockets/joinTransactionRoom";
+import { listenForTransactionUpdates } from "../../Websockets/listenUpdates";
 
 const TransactionTracker = () => {
   const { transactions, updateTransaction } = useTransactions();
@@ -23,33 +22,32 @@ const TransactionTracker = () => {
       );
     }
 
-    // Set up socket listeners for transaction status updates
-    const handleTransactionSuccess = (transactionId: string) => {
-      console.log(`✅ Transaction successful: ${transactionId}`);
+    // Set up global listener for all transaction updates
+    const cleanup = listenForTransactionUpdates((updatedTx) => {
+      console.log(
+        `Received transaction update for ID: ${updatedTx.id}`,
+        updatedTx
+      );
       updateTransaction({
-        id: transactionId,
-        status: "successful",
-        updatedAt: new Date().toISOString(),
+        id: updatedTx.id,
+        status: updatedTx.status,
+        updatedAt: updatedTx.updatedAt || new Date().toISOString(),
       });
-    };
 
-    const handleTransactionFailure = (transactionId: string) => {
-      console.log(`❌ Transaction failed: ${transactionId}`);
-      updateTransaction({
-        id: transactionId,
-        status: "failed",
-        updatedAt: new Date().toISOString(),
-      });
-    };
+      // Show notification to user
+      const statusMessage =
+        updatedTx.status === "successful"
+          ? "✅ Transaction completed successfully!"
+          : "❌ Transaction failed";
 
-    // Register listeners
-    socket.on(WebhookEvent.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
-    socket.on(WebhookEvent.TRANSACTION_FAILED, handleTransactionFailure);
+      // You can implement a proper notification system here
+      if (updatedTx.id) {
+        alert(`${statusMessage} (ID: ${updatedTx.id.substring(0, 8)}...)`);
+      }
+    });
 
-    // Clean up listeners when component unmounts
     return () => {
-      socket.off(WebhookEvent.TRANSACTION_SUCCESSFUL, handleTransactionSuccess);
-      socket.off(WebhookEvent.TRANSACTION_FAILED, handleTransactionFailure);
+      cleanup();
     };
   }, [transactions, updateTransaction]);
 

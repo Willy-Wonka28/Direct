@@ -1,5 +1,6 @@
-export enum WebhookEvent {
+export enum WebsocketEvents {
   CLIENT_CONNECTED = "connection",
+  SERVER_CONNECTED = "connect",
   CLIENT_DISCONNECTED = "disconnect",
   CONNECTION_SUCCESSFUL = "connection_successful",
   TRANSACTION_SUCCESSFUL = "transaction_successful",

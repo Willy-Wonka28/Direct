@@ -19,7 +19,7 @@ app.use(cors(AppEnum.CORS_OPTIONS));
 // Create HTTP server from Express app
 export const server = createServer(app);
 // ! This must be initialized before declaring routes
-initializeWebsockets(server);
+export const websocketTransactionService = initializeWebsockets(server);
 
 // declaring routes
 app.use("/", router);
