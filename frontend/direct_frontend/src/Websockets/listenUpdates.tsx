@@ -8,33 +8,23 @@ export const listenForTransactionUpdates = (
   callback: TransactionUpdateCallback
 ) => {
   // Listen for successful transactions
-  const handleTransactionSuccess = (transactionId: string) => {
-    console.log("✅ Transaction successful:", transactionId);
-    const updatedTransaction = {
-      id: transactionId,
-      status: "successful",
-      updatedAt: new Date().toISOString(),
-    } as Transaction;
+  const handleTransactionSuccess = (transaction: Transaction) => {
+    console.log("✅ Transaction successful:", transaction);
 
     // Update transaction in localStorage directly too
-    updateTransactionInLocalStorage(updatedTransaction);
+    updateTransactionInLocalStorage(transaction);
 
-    callback(updatedTransaction);
+    callback(transaction);
   };
 
   // Listen for failed transactions
-  const handleTransactionFailure = (transactionId: string) => {
-    console.log("❌ Transaction failed:", transactionId);
-    const updatedTransaction = {
-      id: transactionId,
-      status: "failed",
-      updatedAt: new Date().toISOString(),
-    } as Transaction;
+  const handleTransactionFailure = (transaction: Transaction) => {
+    console.log("❌ Transaction failed:", transaction);
 
     // Update transaction in localStorage directly too
-    updateTransactionInLocalStorage(updatedTransaction);
+    updateTransactionInLocalStorage(transaction);
 
-    callback(updatedTransaction);
+    callback(transaction);
   };
 
   // Helper function to update localStorage directly

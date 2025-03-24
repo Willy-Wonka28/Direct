@@ -9,15 +9,15 @@ import { Transaction } from "../transaction.type";
 import { socket } from "../Websockets/index";
 import { WebsocketEvents } from "../Websockets/websocket.events";
 import { joinTransactionRooms } from "../Websockets/joinTransactionRoom";
+import { updateTransactionsInLocalStorage } from "../utils";
 
 interface TransactionContextType {
   transactions: Transaction[];
   addTransaction: (transaction: Transaction) => void;
-  updateTransaction: (
-    updatedTransaction: Partial<Transaction> & { id: string }
-  ) => void;
+  updateTransaction: (updatedTransaction: Transaction) => void;
   getTransactionById: (id: string) => Transaction | undefined;
   refreshTransactions: () => void;
+  setTransactions: (transactions: Transaction[]) => void;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(
@@ -27,7 +27,7 @@ const TransactionContext = createContext<TransactionContextType | undefined>(
 export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactionsState] = useState<Transaction[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load transactions from localStorage on initial mount only
@@ -54,7 +54,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Listen for transaction updates
     const handleTransactionSuccess = (transactionId: string) => {
-      setTransactions((prevTransactions) =>
+      setTransactionsState((prevTransactions) =>
         prevTransactions.map((tx) => {
           if (tx.id === transactionId) {
             return {
@@ -70,7 +70,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const handleTransactionFailure = (transactionId: string) => {
-      setTransactions((prevTransactions) =>
+      setTransactionsState((prevTransactions) =>
         prevTransactions.map((tx) => {
           if (tx.id === transactionId) {
             return {
@@ -89,7 +89,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     socket.on(WebsocketEvents.TRANSACTION_FAILED, handleTransactionFailure);
 
     // Save updated transactions to localStorage whenever they change
-    saveTransactionsToLocalStorage(transactions);
+    updateTransactionsInLocalStorage(transactions);
 
     return () => {
       socket.off(
@@ -102,10 +102,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Save transactions to localStorage
   const saveTransactionsToLocalStorage = (txs: Transaction[]) => {
-    localStorage.setItem(
-      "pendingTransactions",
-      JSON.stringify(txs.map((tx) => ({ data: tx })))
-    );
+    updateTransactionsInLocalStorage(txs);
   };
 
   const refreshTransactions = useCallback(() => {
@@ -119,15 +116,20 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
         item.data ? item.data : item
       );
 
-      setTransactions(extractedTransactions);
+      setTransactionsState(extractedTransactions);
     } catch (error) {
       console.error("Error loading transactions:", error);
-      setTransactions([]);
+      setTransactionsState([]);
     }
   }, []);
 
+  const setTransactions = useCallback((txs: Transaction[]) => {
+    setTransactionsState(txs);
+    saveTransactionsToLocalStorage(txs);
+  }, []);
+
   const addTransaction = useCallback((transaction: Transaction) => {
-    setTransactions((prev) => {
+    setTransactionsState((prev) => {
       // Check if transaction already exists
       const exists = prev.some((tx) => tx.id === transaction.id);
       if (exists) return prev;
@@ -147,25 +149,22 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }, []);
 
-  const updateTransaction = useCallback(
-    (updatedTransaction: Partial<Transaction> & { id: string }) => {
-      setTransactions((prev) => {
-        const updatedTransactions = prev.map((tx) => {
-          if (tx.id === updatedTransaction.id) {
-            const updated = { ...tx, ...updatedTransaction };
-            return updated;
-          }
-          return tx;
-        });
-
-        // Save to localStorage
-        saveTransactionsToLocalStorage(updatedTransactions);
-
-        return updatedTransactions;
+  const updateTransaction = useCallback((updatedTransaction: Transaction) => {
+    setTransactionsState((prev) => {
+      const updatedTransactions = prev.map((tx) => {
+        if (tx.id === updatedTransaction.id) {
+          const updated = { ...tx, ...updatedTransaction };
+          return updated;
+        }
+        return tx;
       });
-    },
-    []
-  );
+
+      // Save to localStorage
+      saveTransactionsToLocalStorage(updatedTransactions);
+
+      return updatedTransactions;
+    });
+  }, []);
 
   const getTransactionById = useCallback(
     (id: string) => {
@@ -180,6 +179,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({
     updateTransaction,
     getTransactionById,
     refreshTransactions,
+    setTransactions,
   };
 
   return (

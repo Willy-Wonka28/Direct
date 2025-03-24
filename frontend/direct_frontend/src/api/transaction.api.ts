@@ -1,22 +1,41 @@
 import { SERVER_URL } from "../../../../config";
 import { Transaction } from "./../transaction.type";
+
 export async function getTransactionById(
   transactionId: string
-): Promise<Transaction> {
-  const response = await fetch(
-    `${SERVER_URL}/api/transaction/${transactionId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+): Promise<{ success: boolean; transaction?: Transaction; error?: string }> {
+  try {
+    const response = await fetch(
+      `${SERVER_URL}/api/transaction/${transactionId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Server responded with status: ${response.status}`,
+      };
     }
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch transaction");
+
+    const responseData = await response.json();
+    const transaction = responseData.data;
+
+    return {
+      success: true,
+      transaction,
+    };
+  } catch (error) {
+    console.error("Error fetching transaction:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
-  const transaction = (await response.json()).data;
-  return transaction;
 }
 
 interface TransactionDataProp {
