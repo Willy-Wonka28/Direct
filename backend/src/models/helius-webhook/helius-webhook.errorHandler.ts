@@ -14,12 +14,12 @@ export function heliusWebhookErrorHandler(
   next: NextFunction
 ) {
   const message = error.message || "Something went wrong";
-  const resObj = new ResponseDto(
-    message,
-    ResponseStatus.ERROR,
-    undefined,
-    error.cause || error
-  );
+  const resObj = new ResponseDto(message, ResponseStatus.ERROR, undefined, {
+    cause: error.cause || error.message,
+    name: error.name || "Error",
+    path: req.path,
+    statusCode: error.status || 500,
+  });
   requestErrors.error(resObj.message, resObj.status, resObj.error);
   res.status(200).send(resObj);
 }
