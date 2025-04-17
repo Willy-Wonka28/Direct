@@ -11,7 +11,7 @@ import { useTransactions } from "../context/TransactionContext";
 type BankData = {
   accountData: string;
   bankName: string | null;
-  solValue: number;
+  solValue: number | null;
 };
 
 const Form = () => {
@@ -21,7 +21,7 @@ const Form = () => {
   const [bankData, setBankData] = useState<BankData>({
     accountData: "",
     bankName: null,
-    solValue: 0,
+    solValue: null,
   });
 
   const [nairaValue, setNairaValue] = useState<number | null>(null);
@@ -34,7 +34,7 @@ const Form = () => {
       try {
         const rate = await getExchangeRate(bankData.solValue);
         console.log("Exchange Rate:", rate);
-        setNairaValue((prevRate) => (prevRate !== rate ? rate : prevRate));
+        setNairaValue((prevRate) => (prevRate !== rate ? rate : prevRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
       } catch (error) {
         console.error("Error fetching exchange rate:", error);
       }
@@ -120,9 +120,11 @@ const Form = () => {
     setConfirmed(true);
   };
 
-  if (banksError) {
-    return <div>Error occurred while fetching banks.</div>;
-  }
+  // check the server and correct this
+
+  // if (banksError) {
+  //   return <div>Error occurred while fetching banks.</div>;
+  // }
 
   if (banksLoading) {
     return <Loader />;

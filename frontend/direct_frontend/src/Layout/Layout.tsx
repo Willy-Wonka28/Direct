@@ -7,9 +7,9 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div>
+    <div className="bg-white">
       <Navbar />
-      <div className="layout-container">{children}</div>
+      <div className="flex flex-col items-center justify-center layout-container">{children}</div>
     </div>
   );
 };
