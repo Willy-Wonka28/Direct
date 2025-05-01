@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "tsx --watch src/server.ts",
     "start": "node dist/server.js",
-    "build": "npm install && npm run db:migrate && npm run build-code",
+    "build": "npm install && npm run db:generate && npm run build-code",
     "build-code": "tsc -p . && cp src/constants/*.json dist/constants",
     "db:migrate": "npx prisma migrate dev",
+    "generate": "npx prisma generate",
     "clean": "rm -rf dist/"
   },
   "keywords": [],
