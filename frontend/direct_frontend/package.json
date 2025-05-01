@@ -1,5 +1,5 @@
 {
-  "name": "hackerthon_crypto",
+  "name": "direct",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -27,7 +27,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.2.0",
     "socket.io-client": "^4.8.1",
-    "styled-components": "^6.1.15",
+    "styled-components": "^6.1.17",
     "tailwindcss": "^4.0.12"
   },
   "devDependencies": {

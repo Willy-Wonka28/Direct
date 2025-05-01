@@ -1,12 +1,36 @@
+.layout-container {
+  padding: 5px;
+  background: rgba(248, 248, 248, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 32px 24px;
+  font-size: 14px;
+  font-family: inherit;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  border-radius: 16px;
+}
+
+
 .form-container {
   width: 400px;
-  background: linear-gradient(#191e2e, #212121) padding-box,
-    linear-gradient(145deg, transparent 35%, #e81cff, #40c9ff) border-box;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 4px solid rgba(255, 255, 255, 0.3);
   border: 2px solid transparent;
   padding: 32px 24px;
   font-size: 14px;
   font-family: inherit;
-  color: white;
+  color: black;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -42,7 +66,7 @@
   width: 100%;
   padding: 12px 16px;
   border-radius: 8px;
-  color: #fff;
+  color: black;
   font-family: inherit;
   background-color: transparent;
   border: 1px solid #414141;
@@ -54,8 +78,8 @@
   border-radius: 8px;
   color: #fff;
   font-family: inherit;
-  background-color: #414141;
-  border: 1px solid #414141;
+  background-color: #10A0C9;
+  border: 1px solid #10A0C9;
   appearance: none; /* Removes default dropdown styles */
   cursor: pointer;
 }
@@ -84,7 +108,7 @@
 .form-container .form-group input::placeholder {
   opacity: 0.5;
 }
-
+/* 
 .form-container .form-group input:focus {
   outline: none;
   border-color: #e81cff;
@@ -98,7 +122,7 @@
 .form-container .form-group textarea:focus {
   outline: none;
   border-color: #e81cff;
-}
+} */
 
 .form-container .form-submit-btn {
   display: flex;
@@ -106,11 +130,11 @@
   justify-content: center;
   align-self: flex-start;
   font-family: inherit;
-  color: #717171;
+  color: white;
   font-weight: 600;
   width: 40%;
-  background: #313131;
-  border: 1px solid #414141;
+  background: #10A0C9;
+  border: 1px solid white;
   padding: 12px 16px;
   font-size: inherit;
   gap: 8px;
