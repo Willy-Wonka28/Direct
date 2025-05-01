@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../../../../config";
+import { SERVER_URL } from "../../../../backend/config";
 import { Transaction } from "./../transaction.type";
 
 // Type for API responses
@@ -82,19 +82,15 @@ export const initializeTransaction = async ({
   };
 
   try {
-    const response = await fetch(
-      "https://direct-production.up.railway.app/transaction/init",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submittedData),
-      }
-    );
+    const response = await fetch(`${SERVER_URL}/transaction/init`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(submittedData),
+    });
 
     const data = await response.json();
-    console.log("Server response:", data);
 
     // Handle different response scenarios
     if (!response.ok) {

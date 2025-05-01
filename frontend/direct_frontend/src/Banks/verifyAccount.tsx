@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SERVER_URL } from "../config";
 
 interface AccountResponse {
   message: string;
@@ -27,7 +28,7 @@ const useVerifyAccount = () => {
     try {
       // ✅ Send parameters in the URL instead of the body
       const response = await fetch(
-        `https://direct-production.up.railway.app/util/verify-account?bank=${encodeURIComponent(bank)}&accountNumber=${accountNumber}`,
+        `${SERVER_URL}/util/verify-account?bank=${encodeURIComponent(bank)}&accountNumber=${accountNumber}`,
         {
           method: "GET", // ✅ Now using GET as required by API
           headers: {

@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { SERVER_URL } from "../config";
 
 const useExchangeRate = () => {
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
@@ -8,7 +9,7 @@ const useExchangeRate = () => {
     setExchangeLoading(true);
     try {
       const response = await fetch(
-        `https://direct-production.up.railway.app/util/exchange-rate?amount=${amount}&fromToken=SOL&toCurrency=NGN`
+        `${SERVER_URL}/util/exchange-rate?amount=${amount}&fromToken=SOL&toCurrency=NGN`
       );
 
       if (!response.ok) {
@@ -16,7 +17,7 @@ const useExchangeRate = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.status !== "success") {
         throw new Error(data.message || "Error fetching exchange rate");
       }

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { SERVER_URL } from "../config";
 
 interface BankResponse {
   message: string;
   status: string;
-  data: string[]; 
+  data: string[];
 }
 
 const useBanks = () => {
@@ -16,12 +17,12 @@ const useBanks = () => {
       setIsLoading(true);
       const requestOptions: RequestInit = {
         method: "GET",
-        redirect: "follow", 
+        redirect: "follow",
       };
 
       try {
         const response = await fetch(
-          "https://direct-production.up.railway.app/util/banks",
+          `${SERVER_URL}/util/banks`,
           requestOptions
         );
 
@@ -30,13 +31,12 @@ const useBanks = () => {
         }
 
         const data: BankResponse = await response.json();
-        
+
         if (data.status === "success") {
-          setBanks(data.data);  
+          setBanks(data.data);
         } else {
           throw new Error(data.message || "Failed to fetch banks");
         }
-
       } catch (err: any) {
         if (err) {
           setError(err.message);
