@@ -4,6 +4,9 @@
 
 **Direct** is a blockchain-based payment gateway that allows users to convert cryptocurrency into fiat seamlessly. It bridges the gap between crypto and traditional banking by providing a reliable and trustless transaction process.
 
+## UVP
+**Direct** is the fastest way to make crypto payments to fiat accounts in Nigeria.
+
 ## Architecture
 
 Direct consists of **three core components**:

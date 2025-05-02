@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "rootDirectory": "frontend/direct_frontend",
   "builds": [
     {
       "src": "dist/server.js",
