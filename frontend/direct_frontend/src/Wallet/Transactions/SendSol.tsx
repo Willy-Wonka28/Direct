@@ -1,11 +1,10 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-import { ApiResponse, initializeTransaction } from "../../api/transaction.api";
+import { initializeTransaction } from "../../api/transaction.api";
 import { joinTransactionRoom } from "../../Websockets/joinTransactionRoom";
 import { useTransactions } from "../../context/TransactionContext";
 import {
   Transaction as AppTransaction,
-  TransactionStatus,
 } from "../../transaction.type";
 import {
   updateTransactionsInLocalStorage,

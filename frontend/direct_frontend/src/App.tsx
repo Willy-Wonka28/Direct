@@ -1,6 +1,6 @@
 import "./App.css";
-import React, { useEffect, useMemo } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import _React, { useEffect, useMemo } from "react";
+import { BrowserRouter as _Router, Routes, Route } from "react-router-dom";
 import Layout from "./Layout/Layout";
 import Home from "./Pages/Home";
 import { TransactionProvider } from "./context/TransactionContext";

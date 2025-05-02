@@ -6,7 +6,7 @@ import { getTransactionById } from "../../api/transaction.api";
 import { Transaction, TransactionStatus } from "../../transaction.type";
 
 const TransactionTracker = () => {
-  const { transactions, updateTransaction, setTransactions } =
+  const { transactions, updateTransaction, } =
     useTransactions();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isCheckingTransactions, setIsCheckingTransactions] = useState(false);
@@ -114,9 +114,9 @@ const TransactionTracker = () => {
   useEffect(() => {
     if (!isInitialLoad && !isCheckingTransactions) {
       // Filter for pending transactions
-      const pendingTransactions = transactions.filter(
-        (tx) => tx.status === TransactionStatus.PENDING
-      );
+      // const pendingTransactions = transactions.filter(
+      //   (tx) => tx.status === TransactionStatus.PENDING
+      // );
 
       // Set up global listener for all transaction updates
       const cleanup = listenForTransactionUpdates((updatedTx) => {

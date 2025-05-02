@@ -6,7 +6,7 @@ import AlertDialog from "../Components/Modal";
 import useExchangeRate from "../Wallet/ExchangeRate";
 import { useWallet } from "@solana/wallet-adapter-react";
 import CustomizedSnackbars from "../Components/Alert";
-import { useTransactions } from "../context/TransactionContext";
+// import { useTransactions } from "../context/TransactionContext";
 
 type BankData = {
   accountData: string;
@@ -16,7 +16,7 @@ type BankData = {
 
 const Form = () => {
   const { connected } = useWallet();
-  const { transactions } = useTransactions();
+  // const { transactions } = useTransactions();
 
   const [bankData, setBankData] = useState<BankData>({
     accountData: "",
@@ -47,7 +47,7 @@ const Form = () => {
   const [verificationAttempted, setVerificationAttempted] =
     useState<string>("");
 
-  const { banks, isLoading: banksLoading, error: banksError } = useBanks();
+  const { banks, isLoading: banksLoading, error: _banksError } = useBanks();
   const { accountName, accountError, accountLoading, verifyAccount } =
     useVerifyAccount();
 

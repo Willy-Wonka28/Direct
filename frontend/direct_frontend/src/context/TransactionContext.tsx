@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { Transaction, TransactionStatus } from "../transaction.type";
+import { Transaction,} from "../transaction.type";
 import {
   updateTransactionsInLocalStorage,
   getTransactionsFromLocalStorage,
