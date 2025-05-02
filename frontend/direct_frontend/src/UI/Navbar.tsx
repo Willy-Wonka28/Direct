@@ -25,12 +25,7 @@ const Navbar = () => {
               {/* Right: Wallet Buttons */}
               <div className="flex items-center gap-3">
                 <WalletMultiButton style={{ backgroundColor: '#10A0C9', color: 'white' }} />
-                 <WalletDisconnectButton
-                    style={{
-                      backgroundColor: connected ? '#10A0C9' : '#A9A9A9',
-                      color: connected ? '#FFFFFF' : '#A9A9A9', 
-                    }}
-                  />
+                 {connected && (<WalletDisconnectButton style={{ backgroundColor: '#10A0C9', color: 'white' }} />)}
               </div>
             </nav>
           </div>

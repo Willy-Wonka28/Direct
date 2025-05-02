@@ -21,7 +21,7 @@ const Home = () => {
 
           const nairaRate = await getExchangeRate(solBalance);
           if (typeof nairaRate === "number") {
-            setNgnValue(solBalance * nairaRate);
+            setNgnValue(nairaRate);
           }
         }
       } catch (error) {

@@ -211,7 +211,7 @@ const Form = () => {
       <AlertDialog
         open={confirmed}
         handleClose={() => setConfirmed(false)}
-        solValue={bankData.solValue}
+        solValue={bankData.solValue ?? 0}
         bankName={bankData.bankName || "Unknown Bank"}
         accountNumber={bankData.accountData}
         accountName={accountName}

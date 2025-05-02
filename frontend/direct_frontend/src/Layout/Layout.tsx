@@ -9,7 +9,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="bg-white">
       <Navbar />
-      <div className="flex flex-col items-center justify-center layout-container">{children}</div>
+      <div className="flex flex-col items-center justify-center layout-container h-[100vh]">{children}</div>
     </div>
   );
 };
