@@ -146,7 +146,7 @@ const Form = () => {
               type="number"
               id="sol_value"
               name="solValue"
-              value={bankData.solValue}
+              value={bankData.solValue ?? ""}
               onChange={handleChange}
               required
             />
