@@ -16,10 +16,10 @@ model Transaction {
   senderAmount Float // in senderToken
 
   receiverAmount    Float // in receiverCurrency
-  receiverCurrency  ReceiverCurrency @default(NGN)
+  receiverCurrency  FiatCurrency @default(NGN)
   // receiverCurrency: 
   receiverAccountNo String
-  receiverBank      Bank
+  receiverBank      Banks
   receiverName      String
 
   status    TransactionStatus @default(PENDING)
@@ -33,69 +33,17 @@ enum Token {
   USDT
   BTC
   ETH
-  BNB
-  BUSD
-  DAI
   USDC
 }
 
-enum ReceiverCurrency {
+enum FiatCurrency {
   USD
   EUR
   GBP
   NGN
-  JPY
-  CAD
-  AUD
-  CNY
-  INR
-  RUB
-  BRL
-  IDR
-  MXN
-  ZAR
-  CHF
-  HKD
-  KRW
-  SGD
-  THB
-  AED
-  ARS
-  CZK
-  DKK
-  HUF
-  ILS
-  MYR
-  NOK
-  NZD
-  PHP
-  PLN
-  RON
-  SEK
-  TRY
-  TWD
-  UAH
-  VND
-  BHD
-  BGN
-  CLP
-  COP
-  EGP
-  HRK
-  ISK
-  JOD
-  KES
-  KWD
-  LKR
-  MAD
-  OMR
-  PKR
-  QAR
-  SAR
-  BDT
 }
 
-enum Bank {
+enum Banks {
   ACCESS_BANK
   GTBANK_PLC
   ZENITH_BANK_PLC
